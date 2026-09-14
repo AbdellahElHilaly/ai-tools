@@ -38,3 +38,5 @@ npm run build
 ## Deployment
 
 كل Push إلى `main` يشغل الاختبارات والبناء، ثم ينشر النسخة الناجحة على GitHub Pages.
+
+التطبيق: [abdellahelhilaly.github.io/ai-tools](https://abdellahelhilaly.github.io/ai-tools/)
