@@ -5,7 +5,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
 export default [
-  { ignores: ["dist", "coverage", "supabase/functions"] },
+  { ignores: ["dist", "docs", "coverage", "supabase/functions"] },
   {
     files: ["**/*.{js,jsx}"],
     languageOptions: {
