@@ -6,6 +6,7 @@ import { useAuth } from "../core/supabase/AuthProvider";
 import { Button } from "../shared/components/Button";
 import { Card } from "../shared/components/Card";
 import { ErrorNotice } from "../shared/components/Feedback";
+import { GroqKeySettings } from "./GroqKeySettings";
 
 export function ConfigPage() {
   const navigate = useNavigate();
@@ -67,6 +68,7 @@ export function ConfigPage() {
           <p className="muted mt-0 leading-7">نموذج إنتاج قوي مع إجابات JSON مضبوطة للكويز.</p>
           <div className="mt-5 rounded-xl border border-line bg-canvas p-4"><span className="muted block text-xs">النموذج</span><strong dir="ltr" className="mt-1 block text-sm">{publicConfig.defaultModel}</strong></div>
         </Card>
+        <GroqKeySettings user={user} />
       </div>
     </div>
   );
