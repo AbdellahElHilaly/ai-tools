@@ -1,5 +1,8 @@
 # AI Tools
 
+[![CI](https://github.com/AbdellahElHilaly/ai-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdellahElHilaly/ai-tools/actions/workflows/ci.yml)
+[![Deploy GitHub Pages](https://github.com/AbdellahElHilaly/ai-tools/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/AbdellahElHilaly/ai-tools/actions/workflows/deploy-pages.yml)
+
 واجهة PWA عربية تجمع أدوات ذكاء اصطناعي صغيرة ومستقلة. أول موديول هو **AI Quiz**: يحول أي هدف تعلّم إلى مستويات، يولد أسئلة مناسبة، ويحفظ التقدم للاستكمال لاحقاً.
 
 ## Stack
