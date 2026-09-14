@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { publicConfig } from "../config/publicConfig";
 import { supabase } from "./client";
 
 const AuthContext = createContext(null);
@@ -40,7 +41,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signUp = useCallback(async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: publicConfig.appUrl }
+    });
     if (error) throw error;
     return data;
   }, []);
