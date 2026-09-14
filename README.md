@@ -37,6 +37,6 @@ npm run build
 
 ## Deployment
 
-كل Push إلى `main` يشغل الاختبارات والبناء، ثم ينشر النسخة الناجحة على GitHub Pages.
+النشر المؤقت يتم مباشرة من `main/docs` بدون تشغيل تلقائي لـGitHub Actions. يمكن تشغيل CI وDeploy يدوياً بعد حل قفل الفوترة في الحساب.
 
 التطبيق: [abdellahelhilaly.github.io/ai-tools](https://abdellahelhilaly.github.io/ai-tools/)

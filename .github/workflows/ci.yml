@@ -1,10 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  # Temporarily manual while the account billing lock is resolved.
+  workflow_dispatch:
 
 permissions:
   contents: read
