@@ -8,16 +8,16 @@ vi.mock("../supabase/client", () => ({
 
 import { QuizAiError, quizAiService } from "./quizAiService";
 
-const level = { id: "beginner", title: "مبتدئ", summary: "الأساسيات", topics: ["A", "B"] };
+const level = { id: "beginner", title: "Beginner", summary: "Fundamentals", topics: ["A", "B"] };
 
 function questions(levelId = level.id) {
   return Array.from({ length: 4 }, (_, index) => ({
     id: `q-${index}`,
     topic: "A",
-    question: `سؤال ${index}`,
+    question: `Question ${index}`,
     options: ["A", "B", "C", "D"],
     correctIndex: 0,
-    explanation: "شرح"
+    explanation: "Explanation"
   })).map((question) => ({ ...question, levelId }));
 }
 
@@ -26,15 +26,15 @@ describe("quiz AI service", () => {
 
   it("returns a validated question batch", async () => {
     invoke.mockResolvedValue({ data: { data: { levelId: level.id, questions: questions() } }, error: null });
-    const result = await quizAiService.createQuestions({ prompt: "تعلم Java", level, questionCount: 4 });
+    const result = await quizAiService.createQuestions({ prompt: "Learn Java", level, questionCount: 4 });
     expect(result.questions).toHaveLength(4);
   });
 
   it("surfaces the structured server error and retry hint", async () => {
-    const payload = { error: { code: "AI_BUSY", message: "الخدمة مشغولة دابا.", retryable: true } };
+    const payload = { error: { code: "AI_BUSY", message: "The AI service is busy.", retryable: true } };
     invoke.mockResolvedValue({ data: null, error: { context: new Response(JSON.stringify(payload), { status: 429 }) } });
 
-    await expect(quizAiService.createPlan({ prompt: "تعلم Java" })).rejects.toMatchObject({
+    await expect(quizAiService.createPlan({ prompt: "Learn Java" })).rejects.toMatchObject({
       name: "QuizAiError",
       code: "AI_BUSY",
       retryable: true
@@ -43,6 +43,6 @@ describe("quiz AI service", () => {
 
   it("rejects questions generated for another level", async () => {
     invoke.mockResolvedValue({ data: { data: { levelId: "advanced", questions: questions() } }, error: null });
-    await expect(quizAiService.createQuestions({ prompt: "تعلم Java", level, questionCount: 4 })).rejects.toBeInstanceOf(QuizAiError);
+    await expect(quizAiService.createQuestions({ prompt: "Learn Java", level, questionCount: 4 })).rejects.toBeInstanceOf(QuizAiError);
   });
 });

@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
   const ensureSession = useCallback(async () => {
     const { data } = await supabase.auth.getSession();
     if (data.session) return data.session;
-    const error = new Error("سجّل الدخول أولاً باش تستعمل الذكاء الاصطناعي وتحفظ التقدم ديالك.");
+    const error = new Error("Sign in first to use AI and save your progress.");
     error.code = "AUTH_REQUIRED";
     throw error;
   }, []);

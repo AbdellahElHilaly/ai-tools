@@ -33,16 +33,16 @@ export function QuizPage() {
       .then((quiz) => {
         if (!active) return;
         if (quiz) dispatch({ type: "LOAD_QUIZ", quiz });
-        else setError({ message: "ما لقيناش هذا الكويز. ممكن يكون تحذف أو ما تزامنش بعد.", code: "NOT_FOUND" });
+        else setError({ message: "We could not find this quiz. It may have been deleted or not synced yet.", code: "NOT_FOUND" });
       })
-      .catch(() => active && setError({ message: "تعذر فتح هذا الكويز.", code: "LOAD_FAILED", retryable: true }))
+      .catch(() => active && setError({ message: "We could not open this quiz.", code: "LOAD_FAILED", retryable: true }))
       .finally(() => active && setOperation(null));
     return () => { active = false; };
   }, [params]);
 
   function showError(nextError, retryAction) {
     setError({
-      message: nextError?.message || "وقع خطأ غير متوقع. حاول مرة أخرى.",
+      message: nextError?.message || "Something unexpected happened. Please try again.",
       code: nextError?.code || "UNKNOWN",
       retryable: Boolean(nextError?.retryable),
       retryAction
@@ -94,14 +94,14 @@ export function QuizPage() {
 
   return (
     <div className="page stack gap-6">
-      <header><span className="eyebrow">AI Quiz</span><h1 className="page-title">تعلّم على قدّ مستواك</h1>{state.phase === "create" ? <p className="page-copy">كتب الهدف، اختار المستوى، وجاوب. تقدمك كيتحفظ تلقائياً.</p> : null}</header>
+      <header><span className="eyebrow">AI Quiz</span><h1 className="page-title">Learn at your level</h1>{state.phase === "create" ? <p className="page-copy">Describe your goal, choose a level, and answer focused questions. Progress saves automatically.</p> : null}</header>
       {state.quiz ? <div className="mx-auto w-full max-w-2xl"><SaveStatus status={autosave.status} error={autosave.error} onRetry={autosave.retry} onSave={saveToLibrary} /></div> : null}
-      {error ? <div className="mx-auto w-full max-w-2xl stack"><ErrorNotice>{error.message}</ErrorNotice><div className="cluster">{error.code === "AUTH_REQUIRED" ? <Link className="flex-1" to="/config?next=/quiz"><Button variant="secondary" className="w-full">سجّل الدخول</Button></Link> : null}{error.retryable && error.retryAction === "questions" ? <Button className="flex-1" onClick={() => startLevel({ force: true })}>عاود المحاولة</Button> : null}</div></div> : null}
-      {operation === "loading" ? <div className="surface"><LoadingState label="كنجيب الكويز والتقدم ديالك…" /></div> : null}
-      {authLoading && state.phase === "create" ? <div className="surface"><LoadingState label="كنتحقق من الحساب…" /></div> : null}
-      {!authLoading && !user && state.phase === "create" ? <div className="surface mx-auto max-w-2xl p-6 text-center stack"><h2 className="m-0 text-xl font-black">دخل لحسابك باش تبدأ</h2><p className="muted m-0 leading-7">هكذا الأسئلة والتقدم ديالك يبقاو محفوظين ومتوفرين من أي جهاز.</p><Link to="/config?next=/quiz"><Button className="w-full">دخول أو إنشاء حساب</Button></Link></div> : null}
+      {error ? <div className="mx-auto w-full max-w-2xl stack"><ErrorNotice>{error.message}</ErrorNotice><div className="cluster">{error.code === "AUTH_REQUIRED" ? <Link className="flex-1" to="/config?next=/quiz"><Button variant="secondary" className="w-full">Sign in</Button></Link> : null}{error.retryable && error.retryAction === "questions" ? <Button className="flex-1" onClick={() => startLevel({ force: true })}>Try again</Button> : null}</div></div> : null}
+      {operation === "loading" ? <div className="surface"><LoadingState label="Loading your quiz and progress…" /></div> : null}
+      {authLoading && state.phase === "create" ? <div className="surface"><LoadingState label="Checking your account…" /></div> : null}
+      {!authLoading && !user && state.phase === "create" ? <div className="surface mx-auto max-w-2xl p-6 text-center stack"><h2 className="m-0 text-xl font-black">Sign in to begin</h2><p className="muted m-0 leading-7">Your questions and progress will stay available across devices.</p><Link to="/config?next=/quiz"><Button className="w-full">Sign in or create an account</Button></Link></div> : null}
       {!authLoading && user && state.phase === "create" && operation !== "loading" ? <QuizCreate onSubmit={createPlan} busy={operation === "planning"} /> : null}
-      {operation === "generating" ? <div className="surface"><LoadingState label="كنوجد أسئلة مناسبة لهذا المستوى…" /></div> : null}
+      {operation === "generating" ? <div className="surface"><LoadingState label="Preparing questions for this level…" /></div> : null}
       {!busy && state.phase === "levels" ? <LevelPicker quiz={state.quiz} selectedLevel={state.selectedLevel} onSelect={(level) => dispatch({ type: "SELECT_LEVEL", level })} onStart={() => startLevel()} busy={busy} /> : null}
       {!busy && state.phase === "playing" && question ? <QuestionCard session={state.session} question={question} answer={answer} onAnswer={(selectedIndex) => dispatch({ type: "ANSWER", selectedIndex })} onNext={() => dispatch({ type: "NEXT" })} onExit={() => dispatch({ type: "BACK_TO_LEVELS" })} /> : null}
       {!busy && state.phase === "summary" ? <QuizSummary session={state.session} onRetry={restartLevel} onLevels={() => dispatch({ type: "BACK_TO_LEVELS" })} /> : null}

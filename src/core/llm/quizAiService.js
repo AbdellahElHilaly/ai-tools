@@ -26,7 +26,7 @@ async function invoke(body, schema) {
     const payload = await readFunctionError(error);
     const details = payload?.error;
     throw new QuizAiError(
-      details?.message || error.message || "تعذر الاتصال بخدمة الذكاء الاصطناعي.",
+      details?.message || error.message || "Could not connect to the AI service.",
       { code: details?.code || "FUNCTION_ERROR", retryable: details?.retryable ?? true }
     );
   }
@@ -37,18 +37,18 @@ async function invoke(body, schema) {
 
   const result = schema.safeParse(data?.data);
   if (!result.success) {
-    throw new QuizAiError("رجع المحتوى بصيغة غير مكتملة. عاود المحاولة.", { code: "INVALID_RESPONSE", retryable: true });
+    throw new QuizAiError("The AI returned an incomplete response. Please try again.", { code: "INVALID_RESPONSE", retryable: true });
   }
   return result.data;
 }
 
 export const quizAiService = {
-  createPlan: ({ prompt, language = "ar" }) =>
+  createPlan: ({ prompt, language = "en" }) =>
     invoke({ operation: "plan", prompt, language }, quizPlanSchema),
-  createQuestions: async ({ prompt, level, language = "ar", questionCount = 8 }) => {
+  createQuestions: async ({ prompt, level, language = "en", questionCount = 8 }) => {
     const batch = await invoke({ operation: "questions", prompt, level, language, questionCount }, questionBatchSchema);
     if (batch.levelId !== level.id) {
-      throw new QuizAiError("الأسئلة ما تطابقوش المستوى المختار. عاود المحاولة.", { code: "LEVEL_MISMATCH", retryable: true });
+      throw new QuizAiError("The questions do not match the selected level. Please try again.", { code: "LEVEL_MISMATCH", retryable: true });
     }
     return batch;
   }

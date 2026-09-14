@@ -128,7 +128,7 @@ Deno.serve(async (request) => {
 
   try {
     const authorization = request.headers.get("Authorization");
-    if (!authorization) return apiError("AUTH_REQUIRED", "يلزم تسجيل الدخول.", false, 401, origin);
+    if (!authorization) return apiError("AUTH_REQUIRED", "Sign in to continue.", false, 401, origin);
 
     const publishableKeys = JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") || "{}");
     const supabase = createClient(Deno.env.get("SUPABASE_URL") || "", publishableKeys.default || Deno.env.get("SUPABASE_ANON_KEY") || "", {
@@ -136,14 +136,14 @@ Deno.serve(async (request) => {
     });
     const token = authorization.replace(/^Bearer\s+/i, "");
     const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData.user) return apiError("INVALID_SESSION", "الجلسة غير صالحة، سجل الدخول من جديد.", false, 401, origin);
+    if (userError || !userData.user) return apiError("INVALID_SESSION", "Your session is no longer valid. Sign in again.", false, 401, origin);
 
     const secretKeys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}");
     const supabaseAdmin = createClient(Deno.env.get("SUPABASE_URL") || "", secretKeys.default || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "");
     const { data: storedKeys, error: keysError } = await supabaseAdmin.rpc("read_available_groq_api_keys", {
       target_user: userData.user.id
     });
-    if (keysError) return apiError("KEYS_UNAVAILABLE", "تعذر تحميل مفاتيح Groq المحفوظة.", true, 500, origin);
+    if (keysError) return apiError("KEYS_UNAVAILABLE", "Your saved Groq keys could not be loaded.", true, 500, origin);
 
     const candidates = (storedKeys || []).map((item: { key_id: string; api_key: string }) => ({
       id: item.key_id,
@@ -152,14 +152,14 @@ Deno.serve(async (request) => {
     const sharedApiKey = Deno.env.get("GROQ_API_KEY");
     if (sharedApiKey) candidates.push({ id: "", apiKey: sharedApiKey });
     if (!candidates.length) {
-      return apiError("AI_NOT_CONFIGURED", "أضف مفتاح Groq صالح من صفحة الإعدادات أولاً.", false, 503, origin);
+      return apiError("AI_NOT_CONFIGURED", "Add a valid Groq key in Settings first.", false, 503, origin);
     }
 
     const body = await request.json();
     const operation = body?.operation;
     const prompt = cleanText(body?.prompt, 1200);
-    const language = cleanText(body?.language, 10) || "ar";
-    if (prompt.length < 5 || !["plan", "questions"].includes(operation)) return apiError("INVALID_REQUEST", "الطلب غير صالح.", false, 400, origin);
+    const language = cleanText(body?.language, 10) || "en";
+    if (prompt.length < 5 || !["plan", "questions"].includes(operation)) return apiError("INVALID_REQUEST", "Invalid request.", false, 400, origin);
 
     let userPrompt: string;
     let schema: ReturnType<typeof planSchema> | ReturnType<typeof questionsSchema>;
@@ -169,14 +169,14 @@ Deno.serve(async (request) => {
     } else {
       const level = body?.level;
       const questionCount = Math.max(4, Math.min(12, Number(body?.questionCount) || 8));
-      if (!level?.id || !Array.isArray(level?.topics)) return apiError("INVALID_LEVEL", "المستوى غير صالح.", false, 400, origin);
+      if (!level?.id || !Array.isArray(level?.topics)) return apiError("INVALID_LEVEL", "Invalid level.", false, 400, origin);
       schema = questionsSchema(questionCount);
       userPrompt = `Create exactly ${questionCount} multiple-choice questions for the learning goal ${JSON.stringify(prompt)} at this level: ${JSON.stringify(level)}. Cover all topics fairly. Use language code ${language}. Give four plausible choices, one correct index, and a short helpful explanation. Return levelId exactly as ${JSON.stringify(level.id)}.`;
     }
 
     const { data: allowed, error: quotaError } = await supabaseAdmin.rpc("consume_ai_quota", { target_user: userData.user.id, daily_limit: 50 });
-    if (quotaError) return apiError("QUOTA_CHECK_FAILED", "تعذر التحقق من حد الاستعمال.", true, 500, origin);
-    if (!allowed) return apiError("DAILY_LIMIT", "وصلت للحد اليومي. رجع غداً وكمل من نفس المكان.", false, 429, origin);
+    if (quotaError) return apiError("QUOTA_CHECK_FAILED", "Your usage limit could not be checked.", true, 500, origin);
+    if (!allowed) return apiError("DAILY_LIMIT", "You have reached today's limit. Return tomorrow to continue.", false, 429, origin);
     quotaReserved = true;
     quotaUserId = userData.user.id;
     quotaClient = supabaseAdmin;
@@ -200,13 +200,13 @@ Deno.serve(async (request) => {
 
       groqResponse = response;
       if (response.ok) {
-        if (candidate.id) await markKey(supabaseAdmin, userData.user.id, candidate.id, "valid", "المفتاح صالح ويعمل.");
+        if (candidate.id) await markKey(supabaseAdmin, userData.user.id, candidate.id, "valid", "The key is valid and working.");
         break;
       }
       if (candidate.id && (response.status === 401 || response.status === 403)) {
-        await markKey(supabaseAdmin, userData.user.id, candidate.id, "invalid", "المفتاح غير صالح أو تم إلغاؤه.");
+        await markKey(supabaseAdmin, userData.user.id, candidate.id, "invalid", "The key is invalid or has been revoked.");
       } else if (candidate.id && response.status === 429) {
-        await markKey(supabaseAdmin, userData.user.id, candidate.id, "valid", "المفتاح صالح، لكنه وصل مؤقتاً لحد الاستعمال.");
+        await markKey(supabaseAdmin, userData.user.id, candidate.id, "valid", "The key is valid, but it has temporarily reached its usage limit.");
       }
       if (![401, 403, 429].includes(response.status)) break;
     }
@@ -217,16 +217,16 @@ Deno.serve(async (request) => {
       console.error("Groq error", groqResponse.status, details.slice(0, 500));
       await refundQuota(supabaseAdmin, userData.user.id);
       quotaReserved = false;
-      if (groqResponse.status === 401 || groqResponse.status === 403) return apiError("AI_CREDENTIALS", "كل مفاتيح Groq المتاحة غير صالحة. راجع الإعدادات.", false, 503, origin);
-      if (groqResponse.status === 429) return apiError("AI_BUSY", "الخدمة مشغولة دابا. تسنى شوية وعاود.", true, 429, origin);
-      return apiError("AI_PROVIDER_ERROR", "تعذر إنشاء المحتوى الآن. حاول مرة أخرى.", true, 502, origin);
+      if (groqResponse.status === 401 || groqResponse.status === 403) return apiError("AI_CREDENTIALS", "All available Groq keys are invalid. Review them in Settings.", false, 503, origin);
+      if (groqResponse.status === 429) return apiError("AI_BUSY", "The AI service is busy. Wait a moment and try again.", true, 429, origin);
+      return apiError("AI_PROVIDER_ERROR", "Content could not be generated right now. Please try again.", true, 502, origin);
     }
     const completion = await groqResponse.json();
     const content = completion?.choices?.[0]?.message?.content;
     if (!content) {
       await refundQuota(supabaseAdmin, userData.user.id);
       quotaReserved = false;
-      return apiError("EMPTY_RESPONSE", "لم يرجع النموذج محتوى صالحاً.", true, 502, origin);
+      return apiError("EMPTY_RESPONSE", "The model did not return valid content.", true, 502, origin);
     }
     const data = JSON.parse(content);
     quotaReserved = false;
@@ -235,6 +235,6 @@ Deno.serve(async (request) => {
     console.error(error);
     if (quotaReserved && quotaClient && quotaUserId) await refundQuota(quotaClient, quotaUserId);
     const timedOut = error instanceof DOMException && error.name === "TimeoutError";
-    return apiError(timedOut ? "AI_TIMEOUT" : "UNEXPECTED_ERROR", timedOut ? "الخدمة خذات وقت طويل. عاود المحاولة." : "وقع خطأ غير متوقع. حاول مرة أخرى.", true, timedOut ? 504 : 500, origin);
+    return apiError(timedOut ? "AI_TIMEOUT" : "UNEXPECTED_ERROR", timedOut ? "The AI service took too long. Please try again." : "Something unexpected happened. Please try again.", true, timedOut ? 504 : 500, origin);
   }
 });

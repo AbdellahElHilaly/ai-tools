@@ -4,9 +4,9 @@ export const modules = Object.freeze([
   {
     id: "quiz",
     name: "AI Quiz",
-    description: "حوّل أي موضوع إلى مستويات واختبارات قصيرة تحفظ تقدمك.",
+    description: "Turn any topic into progressive levels and short quizzes that remember your progress.",
     route: "/quiz",
     icon: BrainCircuit,
-    status: "جاهز"
+    status: "Ready"
   }
 ]);

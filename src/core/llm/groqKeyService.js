@@ -25,7 +25,7 @@ async function invoke(body) {
     const payload = await readFunctionError(error);
     const details = payload?.error;
     throw new GroqKeyError(
-      details?.message || error.message || "تعذر الاتصال بخدمة مفاتيح Groq.",
+      details?.message || error.message || "Could not connect to the Groq key service.",
       { code: details?.code || "FUNCTION_ERROR", retryable: details?.retryable ?? true }
     );
   }

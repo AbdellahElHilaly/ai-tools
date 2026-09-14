@@ -1,18 +1,18 @@
 import { AlertCircle, LoaderCircle } from "lucide-react";
 
-export function LoadingState({ label = "لحظة، كنوجد كلشي…" }) {
+export function LoadingState({ label = "Getting everything ready…" }) {
   return (
     <div className="flex min-h-44 flex-col items-center justify-center gap-3 text-center" role="status">
       <LoaderCircle className="animate-spin text-brand" size={28} />
       <p className="m-0 font-semibold">{label}</p>
-      <span className="muted text-sm">يمكنك تبقى في نفس الصفحة.</span>
+      <span className="muted text-sm">You can stay on this page.</span>
     </div>
   );
 }
 
 export function ErrorNotice({ children }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">
+    <div className="flex items-start gap-3 rounded-xl border border-[var(--color-danger)] p-4 text-sm text-[var(--color-danger)]" role="alert">
       <AlertCircle className="mt-0.5 shrink-0" size={18} />
       <span>{children}</span>
     </div>

@@ -12,12 +12,12 @@ export default defineConfig({
       manifest: {
         name: "AI Tools",
         short_name: "AI Tools",
-        description: "أدوات ذكية صغيرة تساعدك على التعلم والعمل.",
-        theme_color: "#f7f7f4",
-        background_color: "#f7f7f4",
+        description: "Simple AI tools for learning and focused work.",
+        theme_color: "#fff4f4",
+        background_color: "#fff4f4",
         display: "standalone",
-        lang: "ar",
-        dir: "rtl",
+        lang: "en",
+        dir: "ltr",
         start_url: "/ai-tools/#/",
         icons: [
           { src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }

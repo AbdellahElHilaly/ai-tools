@@ -23,7 +23,7 @@ export function useQuizAutosave(quiz) {
       } catch {
         if (active) {
           setStatus("error");
-          setError("تحفظ محلياً، ولكن المزامنة مع الحساب ما نجحاتش.");
+          setError("Saved locally, but account sync failed.");
         }
       }
     }, 350);

@@ -24,7 +24,7 @@ describe("GroqKeySettings", () => {
 
   it("asks signed-out visitors to authenticate", () => {
     render(<GroqKeySettings user={null} />);
-    expect(screen.getByText(/سجّل الدخول من بطاقة المزامنة/)).toBeInTheDocument();
+    expect(screen.getByText(/Sign in from Account settings/)).toBeInTheDocument();
     expect(groqKeyService.list).not.toHaveBeenCalled();
   });
 
@@ -34,25 +34,25 @@ describe("GroqKeySettings", () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{
         id: "key-1",
-        label: "الرئيسي",
+        label: "Primary",
         key_hint: "gsk_••••3456",
         status: "untested"
       }]);
-    groqKeyService.testDraft.mockResolvedValue({ valid: true, message: "المفتاح صالح ومتصل بـGroq." });
-    groqKeyService.save.mockResolvedValue({ id: "key-1", message: "تم حفظ المفتاح مشفراً." });
+    groqKeyService.testDraft.mockResolvedValue({ valid: true, message: "The key is valid and connected to Groq." });
+    groqKeyService.save.mockResolvedValue({ id: "key-1", message: "The key was saved securely." });
 
     render(<GroqKeySettings user={{ id: "user-1" }} />);
     await waitFor(() => expect(groqKeyService.list).toHaveBeenCalledTimes(1));
 
-    await user.type(screen.getByLabelText("اسم المفتاح"), "الرئيسي");
-    await user.type(screen.getByLabelText("Groq API Key"), apiKey);
-    await user.click(screen.getByRole("button", { name: "اختبار قبل الحفظ" }));
+    await user.type(screen.getByLabelText("Key name"), "Primary");
+    await user.type(screen.getByLabelText("Groq API key"), apiKey);
+    await user.click(screen.getByRole("button", { name: "Test before saving" }));
     await waitFor(() => expect(groqKeyService.testDraft).toHaveBeenCalledWith({ apiKey }));
 
-    await user.click(screen.getByRole("button", { name: "حفظ المفتاح" }));
-    await waitFor(() => expect(groqKeyService.save).toHaveBeenCalledWith({ label: "الرئيسي", apiKey }));
+    await user.click(screen.getByRole("button", { name: "Save key" }));
+    await waitFor(() => expect(groqKeyService.save).toHaveBeenCalledWith({ label: "Primary", apiKey }));
     expect(await screen.findByText("gsk_••••3456")).toBeInTheDocument();
     expect(screen.queryByText(apiKey)).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Groq API Key")).toHaveValue("");
+    expect(screen.getByLabelText("Groq API key")).toHaveValue("");
   });
 });

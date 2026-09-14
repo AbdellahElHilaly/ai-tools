@@ -9,9 +9,12 @@ export default {
         ink: "var(--color-ink)",
         muted: "var(--color-muted)",
         brand: "var(--color-brand)",
+        secondary: "var(--color-secondary)",
+        accent: "var(--color-accent)",
+        danger: "var(--color-danger)",
         line: "var(--color-line)"
       },
-      fontFamily: { sans: ["Inter", "Noto Sans Arabic", "system-ui", "sans-serif"] }
+      fontFamily: { sans: ["Inter", "system-ui", "sans-serif"] }
     }
   },
   plugins: []

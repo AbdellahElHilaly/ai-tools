@@ -77,12 +77,12 @@ async function testGroqKey(apiKey: string) {
       signal: AbortSignal.timeout(12_000)
     });
 
-    if (response.ok) return { valid: true, message: "المفتاح صالح ومتصل بـGroq." };
-    if (response.status === 429) return { valid: true, message: "المفتاح صالح، لكن وصل مؤقتاً لحد الاستعمال." };
-    if (response.status === 401 || response.status === 403) return { valid: false, message: "المفتاح غير صالح أو تم إلغاؤه." };
-    return { valid: null, message: "Groq غير متاحة مؤقتاً. عاود الاختبار من بعد." };
+    if (response.ok) return { valid: true, message: "The key is valid and connected to Groq." };
+    if (response.status === 429) return { valid: true, message: "The key is valid, but it has temporarily reached its usage limit." };
+    if (response.status === 401 || response.status === 403) return { valid: false, message: "The key is invalid or has been revoked." };
+    return { valid: null, message: "Groq is temporarily unavailable. Test the key again later." };
   } catch {
-    return { valid: null, message: "تعذر الاتصال بـGroq. تحقق من الإنترنت وعاود." };
+    return { valid: null, message: "Could not connect to Groq. Check your connection and try again." };
   }
 }
 
@@ -101,7 +101,7 @@ Deno.serve(async (request) => {
 
   try {
     const user = await authenticatedUser(request);
-    if (!user) return apiError("AUTH_REQUIRED", "سجّل الدخول أولاً لإدارة مفاتيح Groq.", false, 401, origin);
+    if (!user) return apiError("AUTH_REQUIRED", "Sign in to manage your Groq keys.", false, 401, origin);
 
     const body = await request.json();
     const operation = body?.operation;
@@ -117,7 +117,7 @@ Deno.serve(async (request) => {
       const apiKey = cleanApiKey(body?.apiKey);
       const label = cleanLabel(body?.label) || "Groq";
       if (!validKeyShape(apiKey)) {
-        return apiError("INVALID_KEY_FORMAT", "مفتاح Groq خاصو يبدأ بـ gsk_ ويكون مكتمل.", false, 400, origin);
+        return apiError("INVALID_KEY_FORMAT", "A Groq key must be complete and start with gsk_.", false, 400, origin);
       }
 
       const { data: keyId, error } = await admin.rpc("save_groq_api_key", {
@@ -128,11 +128,11 @@ Deno.serve(async (request) => {
       });
       if (error) {
         if (error.message.includes("groq_key_limit_reached")) {
-          return apiError("KEY_LIMIT", "يمكنك حفظ 10 مفاتيح كحد أقصى.", false, 409, origin);
+          return apiError("KEY_LIMIT", "You can save up to 10 keys.", false, 409, origin);
         }
         throw error;
       }
-      return json({ data: { id: keyId, message: "تم حفظ المفتاح مشفراً. اختبره قبل الاستعمال." } }, 201, origin);
+      return json({ data: { id: keyId, message: "The key was encrypted and saved. Test it before use." } }, 201, origin);
     }
 
     if (operation === "test") {
@@ -147,7 +147,7 @@ Deno.serve(async (request) => {
         apiKey = data || "";
       }
       if (!validKeyShape(apiKey)) {
-        return apiError("KEY_NOT_FOUND", "المفتاح غير موجود أو صيغته غير صالحة.", false, 404, origin);
+        return apiError("KEY_NOT_FOUND", "The key was not found or has an invalid format.", false, 404, origin);
       }
 
       const result = await testGroqKey(apiKey);
@@ -166,19 +166,19 @@ Deno.serve(async (request) => {
 
     if (operation === "delete") {
       const keyId = typeof body?.keyId === "string" ? body.keyId : "";
-      if (!keyId) return apiError("INVALID_REQUEST", "حدد المفتاح المراد حذفه.", false, 400, origin);
+      if (!keyId) return apiError("INVALID_REQUEST", "Choose a key to delete.", false, 400, origin);
       const { data: deleted, error } = await admin.rpc("delete_groq_api_key", {
         target_user: user.id,
         target_key_id: keyId
       });
       if (error) throw error;
-      if (!deleted) return apiError("KEY_NOT_FOUND", "المفتاح غير موجود.", false, 404, origin);
+      if (!deleted) return apiError("KEY_NOT_FOUND", "The key was not found.", false, 404, origin);
       return json({ data: { deleted: true } }, 200, origin);
     }
 
-    return apiError("INVALID_OPERATION", "العملية غير صالحة.", false, 400, origin);
+    return apiError("INVALID_OPERATION", "Invalid operation.", false, 400, origin);
   } catch (error) {
     console.error("Groq key management error", error instanceof Error ? error.message : "unknown");
-    return apiError("UNEXPECTED_ERROR", "تعذر تنفيذ العملية الآن. حاول مرة أخرى.", true, 500, origin);
+    return apiError("UNEXPECTED_ERROR", "The operation could not be completed. Please try again.", true, 500, origin);
   }
 });
