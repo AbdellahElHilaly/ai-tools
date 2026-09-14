@@ -1,18 +1,7 @@
 const BASE = "/ai-tools/";
-const root = document.getElementById("root");
 const isChatRoute = () => (location.hash.slice(1).split("?")[0] || "/").startsWith("/smith");
 const startedInChat = isChatRoute();
-
-function stylesheet(path) {
-  return new Promise((resolve, reject) => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = BASE + path;
-    link.onload = resolve;
-    link.onerror = () => reject(new Error("A required style could not be loaded."));
-    document.head.append(link);
-  });
-}
+const BOOT_TIMEOUT = 20000;
 
 function script(path, module = false) {
   return new Promise((resolve, reject) => {
@@ -25,25 +14,34 @@ function script(path, module = false) {
   });
 }
 
-async function start() {
+function timeout(task) {
+  let timer;
+  const deadline = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error("The application files took too long to arrive.")), BOOT_TIMEOUT);
+  });
+  return Promise.race([task, deadline]).finally(() => clearTimeout(timer));
+}
+
+function start() {
   if (startedInChat) {
-    await stylesheet("smith-app.css");
-    await script("smith-app.js", true);
-    return;
+    return script("smith-app.js", true);
   }
-  await Promise.all([
-    stylesheet("assets/index-CmywP56m.css"),
-    stylesheet("art-theme.css")
+  return Promise.all([
+    script("assets/index-D1sKwAOv.js", true),
+    script("art-theme.js"),
+    script("smith-nav.js")
   ]);
-  await script("assets/index-D1sKwAOv.js", true);
-  await Promise.all([script("art-theme.js"), script("smith-nav.js")]);
 }
 
 window.addEventListener("hashchange", () => {
   if (isChatRoute() !== startedInChat) location.reload();
 });
 
-start().catch((error) => {
-  root.innerHTML = `<section class="boot-error"><h1>AI Tools could not load</h1><p>${error.message || "Check your connection and try again."}</p><button type="button">Try again</button></section>`;
-  root.querySelector("button")?.addEventListener("click", () => location.reload());
+timeout(start()).catch((error) => {
+  const notice = document.getElementById("boot-error");
+  if (!notice) return;
+  notice.hidden = false;
+  notice.className = "boot-error";
+  notice.innerHTML = `${error.message || "A file could not be loaded."}<button type="button">Try again</button>`;
+  notice.querySelector("button")?.addEventListener("click", () => location.reload());
 });

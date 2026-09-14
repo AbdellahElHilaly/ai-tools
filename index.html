@@ -7,9 +7,24 @@
     <meta name="description" content="Simple AI tools for learning and focused work." />
     <link rel="icon" href="./icon.svg" />
     <title>AI Tools</title>
+    <style>
+      html,body,#root{min-height:100%;margin:0}
+      body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;background:#fbfbff;color:#20243a}
+      .first-paint{min-height:100vh;background:linear-gradient(145deg,#fbfbff 20%,#f3f8ff 62%,#fff7fc)}
+      .first-paint header{display:flex;align-items:center;justify-content:space-between;min-height:64px;padding:0 20px;background:linear-gradient(110deg,rgba(58,134,255,.13),rgba(189,178,255,.18),rgba(255,214,224,.16))}
+      .first-paint main{max-width:880px;margin:auto;padding:42px 20px}
+      .first-paint small{font-weight:800;letter-spacing:.12em;color:#3a86ff}
+      .first-paint h1{max-width:590px;margin:10px 0 12px;font-size:clamp(2rem,8vw,4.5rem);line-height:1.02}
+      .first-paint p{color:#687086;line-height:1.65}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="first-paint">
+        <header><strong>AI Tools</strong><span aria-hidden="true">☰</span></header>
+        <main><small>YOUR WORKSPACE</small><h1>Choose what you want to create.</h1><p>The interface is ready. Online data connects quietly after the app opens.</p></main>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

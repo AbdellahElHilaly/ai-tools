@@ -8,16 +8,44 @@
     <link rel="icon" href="./icon.svg" />
     <link rel="manifest" href="/ai-tools/manifest.webmanifest" />
     <title>AI Tools</title>
+    <link rel="preload" as="style" crossorigin href="/ai-tools/assets/index-CmywP56m.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="/ai-tools/art-theme.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="/ai-tools/smith-app.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" crossorigin href="/ai-tools/assets/index-CmywP56m.css" /><link rel="stylesheet" href="/ai-tools/art-theme.css" /><link rel="stylesheet" href="/ai-tools/smith-app.css" /></noscript>
+    <link rel="modulepreload" href="/ai-tools/supabase-lite.js" />
     <style>
       html,body,#root{min-height:100%;margin:0}
       body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;background:#fbfbff;color:#20243a}
-      .boot-status{display:grid;min-height:100vh;place-items:center;margin:0;color:#70768a;font-size:.9rem}
-      .boot-error{max-width:28rem;margin:18vh auto;padding:1.2rem;text-align:center}
-      .boot-error button{min-height:2.75rem;padding:0 1rem;border:0;border-radius:14px;color:#087b82;background:linear-gradient(120deg,rgba(102,224,255,.28),rgba(217,167,255,.2));font:inherit;font-weight:750}
+      .boot-shell{min-height:100vh;background:linear-gradient(145deg,#fbfbff 20%,#f3f8ff 62%,#fff7fc)}
+      .boot-bar{display:flex;align-items:center;justify-content:space-between;min-height:64px;padding:0 20px;background:linear-gradient(110deg,rgba(58,134,255,.13),rgba(189,178,255,.18),rgba(255,214,224,.16));box-sizing:border-box}
+      .boot-menu{display:grid;gap:4px;width:42px;height:42px;padding:12px;border:0;border-radius:50%;background:transparent}
+      .boot-menu span{display:block;height:2px;border-radius:4px;background:#39405b}
+      .boot-main{max-width:880px;margin:auto;padding:42px 20px 100px}
+      .boot-main small{font-weight:800;letter-spacing:.12em;color:#3a86ff}
+      .boot-main h1{max-width:590px;margin:10px 0 12px;font-size:clamp(2rem,8vw,4.5rem);line-height:1.02}
+      .boot-main p{max-width:520px;margin:0;color:#687086;line-height:1.65}
+      .boot-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:34px}
+      .boot-links a{padding:18px;border-radius:22px;color:#20243a;background:linear-gradient(135deg,rgba(58,134,255,.1),rgba(189,178,255,.18),rgba(255,214,224,.16));font-weight:800;text-decoration:none}
+      .boot-error{margin-top:24px;padding:14px 16px;border-radius:16px;background:rgba(255,214,224,.42);color:#8b2844}
+      .boot-error button{margin-left:10px;border:0;background:transparent;color:inherit;font:inherit;font-weight:800;text-decoration:underline}
+      @media(max-width:560px){.boot-links{grid-template-columns:1fr}.boot-main{padding-top:30px}}
     </style>
     <script type="module" src="/ai-tools/bootstrap.js"></script>
   </head>
   <body>
-    <div id="root"><p class="boot-status">Opening AI Tools…</p></div>
+    <div id="root">
+      <div class="boot-shell">
+        <header class="boot-bar"><strong>AI Tools</strong><a class="boot-menu" href="#/config" aria-label="Open settings"><span></span><span></span><span></span></a></header>
+        <main class="boot-main">
+          <small>YOUR WORKSPACE</small>
+          <h1>Choose what you want to create.</h1>
+          <p>The interface is ready. Online data connects quietly after the app opens.</p>
+          <nav class="boot-links" aria-label="Quick navigation">
+            <a href="#/quiz">Quiz</a><a href="#/smith">Chat</a><a href="#/config">Settings</a>
+          </nav>
+          <div id="boot-error" hidden></div>
+        </main>
+      </div>
+    </div>
   </body>
 </html>

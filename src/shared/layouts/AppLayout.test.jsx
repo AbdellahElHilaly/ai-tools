@@ -34,9 +34,9 @@ describe("AppLayout", () => {
     expect(screen.getByRole("link", { name: "My quizzes" })).toBeInTheDocument();
   });
 
-  it("shows Smith navigation throughout a conversation", () => {
+  it("shows Chat navigation throughout a conversation", () => {
     renderAt("/smith/chat/session-id");
-    expect(screen.getByRole("link", { name: "Smith" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Chat" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Chats" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Characters" })).toBeInTheDocument();
   });

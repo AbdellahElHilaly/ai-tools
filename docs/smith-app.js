@@ -13,7 +13,7 @@ const languages = [
 const languageName = (code) => languages.find(([value]) => value === code)?.[1] || code;
 const app = document.createElement("div");
 app.id = "smith-standalone";
-app.hidden = true;
+app.hidden = !path().startsWith("/smith");
 document.body.append(app);
 
 let user = null;
@@ -481,13 +481,19 @@ app.addEventListener("submit", handleSubmit);
 app.addEventListener("change", syncPreferredLanguages);
 window.addEventListener("hashchange", route);
 new MutationObserver(injectHomeCard).observe(document.getElementById("root"), { childList: true, subtree: true });
+
+if (path().startsWith("/smith")) {
+  document.body.classList.add("smith-standalone-open");
+  shell(`
+    <section class="ss-page">
+      <header class="ss-page-head">
+        <div><small>CHAT</small><h1>Your characters</h1><p>Create personalities and continue saved conversations.</p></div>
+        <a class="ss-primary" href="#/smith/chats">Chat history</a>
+      </header>
+    </section>`);
+}
+
 supabase.auth.onAuthStateChange((_event, session) => {
   user = session?.user || null;
   if (path().startsWith("/smith")) setTimeout(() => route(), 0);
 });
-try {
-  await ensureUser();
-} catch {
-  user = null;
-}
-await route();
