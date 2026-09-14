@@ -1,0 +1,12 @@
+name: Smoke
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm runner
+        run: echo "GitHub Actions runner is available"
