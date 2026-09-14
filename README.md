@@ -1,15 +1,37 @@
 # AI Tools
 
-A repository for collecting and developing practical tools powered by artificial intelligence.
+واجهة PWA عربية تجمع أدوات ذكاء اصطناعي صغيرة ومستقلة. أول موديول هو **AI Quiz**: يحول أي هدف تعلّم إلى مستويات، يولد أسئلة مناسبة، ويحفظ التقدم للاستكمال لاحقاً.
 
-## Purpose
+## Stack
 
-This project brings AI utilities together in one place so they can be developed, tested, and reused easily.
+- Vite + React
+- Tailwind CSS
+- Supabase Auth, PostgreSQL and Edge Functions
+- Groq `openai/gpt-oss-120b` with strict structured outputs
+- React Markdown + Mermaid
+- Vitest + GitHub Actions
 
-## Status
+## Local development
 
-The project is currently under development. Tools and documentation will be added progressively.
+```bash
+npm install
+npm run dev
+```
 
-## Contributing
+انسخ `.env.example` إلى `.env.local` إذا أردت استعمال مشروع Supabase مختلفاً.
 
-Contributions, suggestions, and improvements are welcome.
+## Quality checks
+
+```bash
+npm run lint
+npm test
+npm run build
+```
+
+## Architecture
+
+كل أداة داخل `src/modules` مستقلة. تستعمل الموديولات الخدمات المشتركة في `src/core` وعناصر التصميم في `src/shared`، ولا تستورد من موديولات أخرى. الاتصال بـGroq يمر حصراً عبر Supabase Edge Function، ولا يوجد أي مفتاح سري في الواجهة.
+
+## Deployment
+
+كل Push إلى `main` يشغل الاختبارات والبناء، ثم ينشر النسخة الناجحة على GitHub Pages.
