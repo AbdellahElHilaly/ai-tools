@@ -34,7 +34,11 @@ function avatarUrl(value) {
 }
 async function signAvatar(value) {
   if (!value?.avatar_path) return { ...value, _avatar_url: "" };
-  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(value.avatar_path, 60 * 60);
+  const { data, error } = await withTimeout(
+    supabase.storage.from(bucket).createSignedUrl(value.avatar_path, 60 * 60),
+    10000,
+    "Profile image took too long to load."
+  );
   return { ...value, _avatar_url: error ? "" : data.signedUrl };
 }
 function initials(name = "") {
@@ -48,6 +52,13 @@ function avatar(character, size = "") {
 }
 function errorMessage(error) {
   return error?.message || "Something went wrong. Please try again.";
+}
+function withTimeout(task, timeout = 15000, message = "The request took too long. Check your connection and try again.") {
+  let timeoutId;
+  const guard = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(message)), timeout);
+  });
+  return Promise.race([Promise.resolve(task), guard]).finally(() => clearTimeout(timeoutId));
 }
 function getSessionId() {
   const match = path().match(/^\/smith\/chat\/([0-9a-f-]+)$/i);
@@ -83,17 +94,26 @@ function authRequired() {
 }
 
 async function ensureUser() {
-  const { data } = await supabase.auth.getUser();
-  user = data.user;
+  const { data, error } = await withTimeout(
+    supabase.auth.getSession(),
+    10000,
+    "Session check took too long. Check your connection and try again."
+  );
+  if (error) throw error;
+  user = data.session?.user || null;
   return user;
 }
 async function loadCharacters() {
-  const { data, error } = await supabase.from("smith_characters").select("*").order("updated_at", { ascending: false });
+  const { data, error } = await withTimeout(
+    supabase.from("smith_characters").select("*").order("updated_at", { ascending: false })
+  );
   if (error) throw error;
   characters = await Promise.all((data || []).map(signAvatar));
 }
 async function loadSessions() {
-  const { data, error } = await supabase.from("smith_sessions").select("*, smith_characters(*)").order("updated_at", { ascending: false });
+  const { data, error } = await withTimeout(
+    supabase.from("smith_sessions").select("*, smith_characters(*)").order("updated_at", { ascending: false })
+  );
   if (error) throw error;
   sessions = data || [];
   await Promise.all(sessions.map(async (session) => {
@@ -143,8 +163,11 @@ async function renderCharacters() {
         <button class="ss-chat-button" data-action="start-chat" data-id="${character.id}">◌ Start chat</button>
       </article>`).join("");
   } catch (error) {
-    app.querySelector(".ss-status").className = "ss-error";
-    app.querySelector(".ss-status").textContent = errorMessage(error);
+    const status = app.querySelector(".ss-status");
+    if (status) {
+      status.className = "ss-error";
+      status.textContent = errorMessage(error);
+    }
   }
 }
 
@@ -255,8 +278,11 @@ async function renderSessions() {
       </article>`;
     }).join("");
   } catch (error) {
-    app.querySelector(".ss-status").className = "ss-error";
-    app.querySelector(".ss-status").textContent = errorMessage(error);
+    const status = app.querySelector(".ss-status");
+    if (status) {
+      status.className = "ss-error";
+      status.textContent = errorMessage(error);
+    }
   }
 }
 
@@ -265,7 +291,9 @@ async function renderChat() {
   if (!user && !(await ensureUser())) return authRequired();
   const id = getSessionId();
   shell('<section class="ss-status ss-chat-loading">Loading conversation…</section>', "chats");
-  const { data: session, error } = await supabase.from("smith_sessions").select("*, smith_characters(*)").eq("id", id).maybeSingle();
+  const { data: session, error } = await withTimeout(
+    supabase.from("smith_sessions").select("*, smith_characters(*)").eq("id", id).maybeSingle()
+  );
   if (error || !session) {
     app.querySelector(".ss-main").innerHTML = `<section class="ss-empty"><h1>Conversation not found</h1><a class="ss-primary" href="#/smith/chats">Back to chats</a></section>`;
     return;
@@ -285,7 +313,9 @@ async function renderChat() {
 async function refreshMessages() {
   const list = app.querySelector(".ss-messages");
   if (!list || !activeSession) return;
-  const { data, error } = await supabase.from("smith_messages").select("*").eq("session_id", activeSession.id).order("created_at", { ascending: true });
+  const { data, error } = await withTimeout(
+    supabase.from("smith_messages").select("*").eq("session_id", activeSession.id).order("created_at", { ascending: true })
+  );
   if (error) {
     list.innerHTML = `<p class="ss-error">${esc(errorMessage(error))}</p>`;
     return;
@@ -333,6 +363,10 @@ async function handleClick(event) {
   if (action === "toggle-sidebar") {
     const open = app.classList.toggle("sidebar-open");
     app.querySelector(".ss-nav-toggle")?.setAttribute("aria-expanded", String(open));
+    return;
+  }
+  if (action === "retry-route") {
+    await route();
     return;
   }
   try {
@@ -427,10 +461,15 @@ async function route() {
     setTimeout(injectHomeCard, 80);
     return;
   }
-  if (path() === "/smith") await renderCharacters();
-  else if (path() === "/smith/chats") await renderSessions();
-  else if (getSessionId()) await renderChat();
-  else location.hash = "#/smith";
+  try {
+    if (path() === "/smith") await renderCharacters();
+    else if (path() === "/smith/chats") await renderSessions();
+    else if (getSessionId()) await renderChat();
+    else location.hash = "#/smith";
+  } catch (error) {
+    const active = path().includes("/chat") ? "chats" : "characters";
+    shell(`<section class="ss-empty"><span class="ss-spark">!</span><h1>Chat could not load</h1><p>${esc(errorMessage(error))}</p><button class="ss-primary" data-action="retry-route">Try again</button></section>`, active);
+  }
 }
 
 app.addEventListener("click", handleClick);
@@ -440,7 +479,11 @@ window.addEventListener("hashchange", route);
 new MutationObserver(injectHomeCard).observe(document.getElementById("root"), { childList: true, subtree: true });
 supabase.auth.onAuthStateChange((_event, session) => {
   user = session?.user || null;
-  if (path().startsWith("/smith")) route();
+  if (path().startsWith("/smith")) setTimeout(() => route(), 0);
 });
-await ensureUser();
+try {
+  await ensureUser();
+} catch {
+  user = null;
+}
 await route();
