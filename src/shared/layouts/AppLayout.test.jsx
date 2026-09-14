@@ -12,6 +12,7 @@ function renderAt(route) {
         <Route element={<AppLayout />}>
           <Route path="config" element={<h1>Settings content</h1>} />
           <Route path="quiz" element={<h1>Quiz content</h1>} />
+          <Route path="smith/*" element={<h1>Smith content</h1>} />
         </Route>
       </Routes>
     </MemoryRouter>
@@ -21,7 +22,6 @@ function renderAt(route) {
 describe("AppLayout", () => {
   it("shows settings-specific bottom navigation", () => {
     renderAt("/config?section=keys");
-
     expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "API keys" })).toHaveAttribute("aria-current", "page");
     expect(screen.queryByRole("link", { name: "My quizzes" })).not.toBeInTheDocument();
@@ -29,9 +29,15 @@ describe("AppLayout", () => {
 
   it("shows quiz-specific bottom navigation", () => {
     renderAt("/quiz");
-
     expect(screen.getByRole("link", { name: "Quiz" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "New quiz" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "My quizzes" })).toBeInTheDocument();
+  });
+
+  it("shows Smith navigation throughout a conversation", () => {
+    renderAt("/smith/chat/session-id");
+    expect(screen.getByRole("link", { name: "Smith" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Chats" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Characters" })).toBeInTheDocument();
   });
 });

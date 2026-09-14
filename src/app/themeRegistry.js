@@ -3,6 +3,7 @@ import { modules } from "./moduleRegistry";
 export const themes = Object.freeze({
   home: Object.freeze({ id: "home", className: "theme-home", chromeColor: "#3a86ff" }),
   quiz: Object.freeze({ id: "quiz", className: "theme-quiz", chromeColor: "#7657ff" }),
+  smith: Object.freeze({ id: "smith", className: "theme-smith", chromeColor: "#18a6a6" }),
   settings: Object.freeze({ id: "settings", className: "theme-settings", chromeColor: "#3a86ff" })
 });
 

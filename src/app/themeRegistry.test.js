@@ -7,6 +7,12 @@ describe("theme registry", () => {
     expect(resolveModuleTheme("/library").id).toBe("quiz");
   });
 
+  it("keeps every Smith screen in the Smith theme", () => {
+    expect(resolveModuleTheme("/smith").id).toBe("smith");
+    expect(resolveModuleTheme("/smith/chats").id).toBe("smith");
+    expect(resolveModuleTheme("/smith/chat/session-id").id).toBe("smith");
+  });
+
   it("keeps core screens independent from module themes", () => {
     expect(resolveModuleTheme("/").id).toBe("home");
     expect(resolveModuleTheme("/config").id).toBe("settings");

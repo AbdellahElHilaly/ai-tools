@@ -1,16 +1,20 @@
 import {
   BookMarked,
+  Bot,
   BrainCircuit,
   House,
   KeyRound,
+  MessagesSquare,
   Settings2,
   Sparkles,
-  UserRound
+  UserRound,
+  UsersRound
 } from "lucide-react";
 
 export const primaryNavigation = Object.freeze([
   { to: "/", label: "Home", icon: House, isActive: (path) => path === "/" },
   { to: "/quiz", label: "Quiz", icon: BrainCircuit, isActive: (path) => path === "/quiz" || path === "/library" },
+  { to: "/smith", label: "Smith", icon: Bot, isActive: (path) => path.startsWith("/smith") },
   { to: "/config", label: "Settings", icon: Settings2, isActive: (path) => path === "/config" }
 ]);
 
@@ -23,6 +27,10 @@ export const contextualNavigation = Object.freeze({
     { to: "/quiz", label: "New quiz", icon: BrainCircuit, exact: true },
     { to: "/library", label: "My quizzes", icon: BookMarked, pathname: "/library" }
   ],
+  smith: [
+    { to: "/smith", label: "Characters", icon: UsersRound, pathname: "/smith" },
+    { to: "/smith/chats", label: "Chats", icon: MessagesSquare, matchPrefix: "/smith/chat" }
+  ],
   settings: [
     { to: "/config?section=account", label: "Account", icon: UserRound, search: "section=account" },
     { to: "/config?section=keys", label: "API keys", icon: KeyRound, search: "section=keys" }
@@ -32,6 +40,7 @@ export const contextualNavigation = Object.freeze({
 export function resolveNavigationSection(pathname) {
   if (pathname === "/config") return "settings";
   if (pathname === "/quiz" || pathname === "/library") return "quiz";
+  if (pathname.startsWith("/smith")) return "smith";
   return "home";
 }
 
@@ -39,6 +48,7 @@ export function isContextItemActive(item, location) {
   if (item.search === "section=account" && location.pathname === "/config" && !location.search.includes("section=")) {
     return true;
   }
+  if (item.matchPrefix) return location.pathname === item.to || location.pathname.startsWith(item.matchPrefix);
   if (item.pathname) return location.pathname === item.pathname;
   if (item.search) return location.search.includes(item.search);
   return Boolean(item.exact && location.pathname === item.to && !location.search);

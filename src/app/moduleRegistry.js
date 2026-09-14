@@ -1,4 +1,4 @@
-import { BrainCircuit } from "lucide-react";
+import { Bot, BrainCircuit } from "lucide-react";
 
 export const modules = Object.freeze([
   Object.freeze({
@@ -10,5 +10,15 @@ export const modules = Object.freeze([
     status: "Ready",
     theme: "quiz",
     themeRoutes: Object.freeze(["/quiz", "/library"])
+  }),
+  Object.freeze({
+    id: "smith",
+    name: "Smith Chat",
+    description: "Create distinct AI personalities, then talk with them across private saved sessions.",
+    route: "/smith",
+    icon: Bot,
+    status: "Ready",
+    theme: "smith",
+    themeRoutes: Object.freeze(["/smith"])
   })
 ]);
