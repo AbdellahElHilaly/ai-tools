@@ -1,0 +1,1 @@
+create index if not exists smith_messages_user_idx on public.smith_messages (user_id);\n
