@@ -2,12 +2,14 @@
   const themes = {
     home: { color: "#3a86ff" },
     quiz: { color: "#6746e8" },
+    smith: { color: "#159a9a" },
     settings: { color: "#2878ed" }
   };
 
   function resolveTheme() {
     const path = (window.location.hash.slice(1).split("?")[0] || "/").replace(/\/$/, "") || "/";
     if (path === "/quiz" || path === "/library") return "quiz";
+    if (path.startsWith("/smith")) return "smith";
     if (path === "/config") return "settings";
     return "home";
   }
