@@ -17,7 +17,7 @@ describe("quiz journey", () => {
 
     await user.click(screen.getByRole("button", { name: "Teach me Java fundamentals" }));
     await user.click(screen.getByRole("checkbox"));
-    await user.click(screen.getByRole("button", { name: /Suggest levels/ }));
+    await user.click(screen.getByRole("button", { name: /Create quiz/ }));
 
     expect(onSubmit).toHaveBeenCalledWith({ prompt: "Teach me Java fundamentals", saveToLibrary: false });
   });

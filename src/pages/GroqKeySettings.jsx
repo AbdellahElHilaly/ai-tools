@@ -36,7 +36,7 @@ function StatusBadge({ status }) {
 function SavedKey({ item, busyAction, onTest, onDelete }) {
   const isBusy = busyAction?.endsWith(item.id);
   return (
-    <li className="rounded-2xl border border-line p-4">
+    <li className="rounded-xl border border-line p-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -67,7 +67,7 @@ function SavedKey({ item, busyAction, onTest, onDelete }) {
             aria-label={`Delete ${item.label}`}
           >
             {busyAction === `delete:${item.id}` ? <LoaderCircle className="animate-spin" size={16} /> : <Trash2 size={16} />}
-            <span className="sr-only sm:not-sr-only">Delete</span>
+            <span className="sr-only">Delete</span>
           </Button>
         </div>
       </div>
@@ -157,15 +157,14 @@ export function GroqKeySettings({ user }) {
   const validDraft = /^gsk_[A-Za-z0-9_-]{16,236}$/.test(apiKey.trim());
 
   return (
-    <Card className="lg:col-span-2">
-      <div className="mb-5 flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-secondary text-brand">
-          <KeyRound size={20} aria-hidden="true" />
+    <Card>
+      <div className="mb-4 flex items-start gap-3 border-b border-line pb-4">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-secondary text-brand">
+          <KeyRound size={18} aria-hidden="true" />
         </span>
         <div>
-          <span className="eyebrow">Groq API Keys</span>
-          <h2 className="mb-1 mt-1 text-xl font-black">Your keys</h2>
-          <p className="muted m-0 text-sm leading-6">Keys are encrypted in Supabase Vault. A full key is never shown again after saving.</p>
+          <h2 className="m-0 text-lg font-black">Groq keys</h2>
+          <p className="muted mb-0 mt-1 text-sm leading-5">Encrypted in Supabase. Only the last four characters remain visible.</p>
         </div>
       </div>
 
@@ -174,12 +173,12 @@ export function GroqKeySettings({ user }) {
           Sign in from Account settings to add and manage your keys.
         </div>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-          <form className="stack content-start" onSubmit={saveKey}>
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+          <form className="stack content-start gap-3" onSubmit={saveKey}>
             <label className="stack gap-2 text-sm font-bold">
               Key name
               <input
-                className="min-h-12 rounded-xl border border-line bg-canvas px-4 outline-none focus:border-brand"
+                className="min-h-11 rounded-lg border border-line bg-canvas px-3 outline-none focus:border-brand"
                 maxLength={40}
                 placeholder="Example: Primary key"
                 value={label}
@@ -191,7 +190,7 @@ export function GroqKeySettings({ user }) {
               <span className="relative">
                 <input
                   dir="ltr"
-                  className="min-h-12 w-full rounded-xl border border-line bg-canvas py-3 pl-4 pr-12 outline-none focus:border-brand"
+                  className="min-h-11 w-full rounded-lg border border-line bg-canvas py-2.5 pl-3 pr-11 outline-none focus:border-brand"
                   type={showKey ? "text" : "password"}
                   autoComplete="off"
                   spellCheck="false"
@@ -202,7 +201,7 @@ export function GroqKeySettings({ user }) {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 grid w-12 place-items-center text-muted hover:text-ink"
+                  className="absolute inset-y-0 right-0 grid w-11 place-items-center text-muted hover:text-ink"
                   onClick={() => setShowKey((value) => !value)}
                   aria-label={showKey ? "Hide key" : "Show key"}
                 >
@@ -210,17 +209,16 @@ export function GroqKeySettings({ user }) {
                 </button>
               </span>
             </label>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button type="button" variant="secondary" disabled={!validDraft || Boolean(busyAction)} onClick={testDraft}>
                 {busyAction === "test:draft" ? <LoaderCircle className="animate-spin" size={17} /> : <ShieldCheck size={17} />}
-                Test before saving
+                Test key
               </Button>
               <Button disabled={!validDraft || Boolean(busyAction) || keys.length >= 10}>
                 {busyAction === "save" ? <LoaderCircle className="animate-spin" size={17} /> : <Plus size={17} />}
                 Save key
               </Button>
             </div>
-            <p className="muted m-0 text-xs leading-5">Save up to 10 keys. If one fails, Quiz automatically tries the next available key.</p>
           </form>
 
           <section aria-labelledby="saved-groq-keys">
@@ -229,7 +227,7 @@ export function GroqKeySettings({ user }) {
               <span className="muted text-xs">{keys.length}/10</span>
             </div>
             {loading ? (
-              <div className="flex min-h-28 items-center justify-center gap-2 text-sm text-muted" role="status">
+              <div className="flex min-h-24 items-center justify-center gap-2 text-sm text-muted" role="status">
                 <LoaderCircle className="animate-spin" size={18} /> Loading keys…
               </div>
             ) : keys.length ? (
@@ -239,7 +237,7 @@ export function GroqKeySettings({ user }) {
                 ))}
               </ul>
             ) : (
-              <div className="grid min-h-28 place-items-center rounded-xl border border-dashed border-line p-4 text-center text-sm text-muted">
+              <div className="grid min-h-24 place-items-center rounded-xl border border-dashed border-line p-4 text-center text-sm text-muted">
                 No keys saved yet.
               </div>
             )}

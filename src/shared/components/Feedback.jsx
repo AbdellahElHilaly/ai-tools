@@ -2,10 +2,9 @@ import { AlertCircle, LoaderCircle } from "lucide-react";
 
 export function LoadingState({ label = "Getting everything ready…" }) {
   return (
-    <div className="flex min-h-44 flex-col items-center justify-center gap-3 text-center" role="status">
-      <LoaderCircle className="animate-spin text-brand" size={28} />
-      <p className="m-0 font-semibold">{label}</p>
-      <span className="muted text-sm">You can stay on this page.</span>
+    <div className="flex min-h-32 flex-col items-center justify-center gap-3 text-center" role="status">
+      <LoaderCircle className="animate-spin text-brand" size={24} />
+      <p className="m-0 text-sm font-semibold">{label}</p>
     </div>
   );
 }

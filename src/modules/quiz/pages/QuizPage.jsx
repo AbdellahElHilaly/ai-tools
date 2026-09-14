@@ -93,13 +93,13 @@ export function QuizPage() {
   const answer = selectCurrentAnswer(state);
 
   return (
-    <div className="page stack gap-6">
-      <header><span className="eyebrow">AI Quiz</span><h1 className="page-title">Learn at your level</h1>{state.phase === "create" ? <p className="page-copy">Describe your goal, choose a level, and answer focused questions. Progress saves automatically.</p> : null}</header>
+    <div className="page stack gap-4">
+      {state.phase === "create" ? <header><h1 className="page-title">Quiz</h1><p className="page-copy text-sm">Create a quiz from any topic.</p></header> : null}
       {state.quiz ? <div className="mx-auto w-full max-w-2xl"><SaveStatus status={autosave.status} error={autosave.error} onRetry={autosave.retry} onSave={saveToLibrary} /></div> : null}
       {error ? <div className="mx-auto w-full max-w-2xl stack"><ErrorNotice>{error.message}</ErrorNotice><div className="cluster">{error.code === "AUTH_REQUIRED" ? <Link className="flex-1" to="/config?next=/quiz"><Button variant="secondary" className="w-full">Sign in</Button></Link> : null}{error.retryable && error.retryAction === "questions" ? <Button className="flex-1" onClick={() => startLevel({ force: true })}>Try again</Button> : null}</div></div> : null}
       {operation === "loading" ? <div className="surface"><LoadingState label="Loading your quiz and progress…" /></div> : null}
       {authLoading && state.phase === "create" ? <div className="surface"><LoadingState label="Checking your account…" /></div> : null}
-      {!authLoading && !user && state.phase === "create" ? <div className="surface mx-auto max-w-2xl p-6 text-center stack"><h2 className="m-0 text-xl font-black">Sign in to begin</h2><p className="muted m-0 leading-7">Your questions and progress will stay available across devices.</p><Link to="/config?next=/quiz"><Button className="w-full">Sign in or create an account</Button></Link></div> : null}
+      {!authLoading && !user && state.phase === "create" ? <div className="surface mx-auto w-full max-w-2xl p-5 text-center stack"><h2 className="m-0 text-lg font-black">Sign in to create a quiz</h2><Link to="/config?next=/quiz"><Button className="w-full">Open account</Button></Link></div> : null}
       {!authLoading && user && state.phase === "create" && operation !== "loading" ? <QuizCreate onSubmit={createPlan} busy={operation === "planning"} /> : null}
       {operation === "generating" ? <div className="surface"><LoadingState label="Preparing questions for this level…" /></div> : null}
       {!busy && state.phase === "levels" ? <LevelPicker quiz={state.quiz} selectedLevel={state.selectedLevel} onSelect={(level) => dispatch({ type: "SELECT_LEVEL", level })} onStart={() => startLevel()} busy={busy} /> : null}

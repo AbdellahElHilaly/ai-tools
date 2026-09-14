@@ -46,7 +46,7 @@ describe("GroqKeySettings", () => {
 
     await user.type(screen.getByLabelText("Key name"), "Primary");
     await user.type(screen.getByLabelText("Groq API key"), apiKey);
-    await user.click(screen.getByRole("button", { name: "Test before saving" }));
+    await user.click(screen.getByRole("button", { name: "Test key" }));
     await waitFor(() => expect(groqKeyService.testDraft).toHaveBeenCalledWith({ apiKey }));
 
     await user.click(screen.getByRole("button", { name: "Save key" }));
