@@ -30,7 +30,12 @@ function esc(value = "") {
 function attr(value = "") { return esc(value); }
 function path() { return (location.hash.slice(1).split("?")[0] || "/").replace(/\/$/, "") || "/"; }
 function avatarUrl(value) {
-  return value?.avatar_path ? supabase.storage.from(bucket).getPublicUrl(value.avatar_path).data.publicUrl : "";
+  return value?._avatar_url || "";
+}
+async function signAvatar(value) {
+  if (!value?.avatar_path) return { ...value, _avatar_url: "" };
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(value.avatar_path, 60 * 60);
+  return { ...value, _avatar_url: error ? "" : data.signedUrl };
 }
 function initials(name = "") {
   return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
@@ -81,12 +86,18 @@ async function ensureUser() {
 async function loadCharacters() {
   const { data, error } = await supabase.from("smith_characters").select("*").order("updated_at", { ascending: false });
   if (error) throw error;
-  characters = data || [];
+  characters = await Promise.all((data || []).map(signAvatar));
 }
 async function loadSessions() {
   const { data, error } = await supabase.from("smith_sessions").select("*, smith_characters(*)").order("updated_at", { ascending: false });
   if (error) throw error;
   sessions = data || [];
+  await Promise.all(sessions.map(async (session) => {
+    const nested = Array.isArray(session.smith_characters) ? session.smith_characters[0] : session.smith_characters;
+    if (!nested) return;
+    const signed = await signAvatar(nested);
+    session.smith_characters = Array.isArray(session.smith_characters) ? [signed] : signed;
+  }));
 }
 function setBusy(value) {
   busy = value;
@@ -255,8 +266,10 @@ async function renderChat() {
     app.querySelector(".ss-main").innerHTML = `<section class="ss-empty"><h1>Conversation not found</h1><a class="ss-primary" href="#/smith/chats">Back to chats</a></section>`;
     return;
   }
+  const rawCharacter = Array.isArray(session.smith_characters) ? session.smith_characters[0] : session.smith_characters;
+  const character = await signAvatar(rawCharacter);
+  session.smith_characters = Array.isArray(session.smith_characters) ? [character] : character;
   activeSession = session;
-  const character = Array.isArray(session.smith_characters) ? session.smith_characters[0] : session.smith_characters;
   app.querySelector(".ss-main").innerHTML = `
     <section class="ss-chat">
       <header class="ss-chat-head"><a href="#/smith/chats" aria-label="Back">←</a>${avatar(character)}<div><strong>${esc(character.name)}</strong><small>${esc(languageName(session.language))}</small></div></header>

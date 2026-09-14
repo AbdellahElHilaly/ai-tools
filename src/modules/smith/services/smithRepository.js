@@ -13,12 +13,13 @@ async function requireUser() {
   return data.user;
 }
 
-function avatarUrl(path) {
+async function avatarUrl(path) {
   if (!path) return "";
-  return supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path).data.publicUrl;
+  const { data, error } = await supabase.storage.from(AVATAR_BUCKET).createSignedUrl(path, 60 * 60);
+  return error ? "" : data.signedUrl;
 }
 
-function mapCharacter(row) {
+async function mapCharacter(row) {
   if (!row) return null;
   return {
     id: row.id,
@@ -26,7 +27,7 @@ function mapCharacter(row) {
     brief: row.brief,
     headerPrompt: row.header_prompt,
     avatarPath: row.avatar_path,
-    avatarUrl: avatarUrl(row.avatar_path),
+    avatarUrl: await avatarUrl(row.avatar_path),
     allowedLanguages: row.allowed_languages || ["en"],
     preferredLanguage: row.preferred_language || "en",
     createdAt: row.created_at,
@@ -34,7 +35,7 @@ function mapCharacter(row) {
   };
 }
 
-function mapSession(row) {
+async function mapSession(row) {
   if (!row) return null;
   const nested = Array.isArray(row.smith_characters) ? row.smith_characters[0] : row.smith_characters;
   return {
@@ -44,7 +45,7 @@ function mapSession(row) {
     language: row.language,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    character: mapCharacter(nested)
+    character: await mapCharacter(nested)
   };
 }
 
@@ -72,7 +73,7 @@ export const smithRepository = {
     await requireUser();
     const { data, error } = await supabase.from("smith_characters").select("*").order("updated_at", { ascending: false });
     if (error) throw error;
-    return data.map(mapCharacter);
+    return Promise.all(data.map(mapCharacter));
   },
 
   async createCharacter(input, avatarFile) {
@@ -138,7 +139,7 @@ export const smithRepository = {
       .select("*, smith_characters(*)")
       .order("updated_at", { ascending: false });
     if (error) throw error;
-    return data.map(mapSession);
+    return Promise.all(data.map(mapSession));
   },
 
   async createSession({ characterId, language, title = "New conversation" }) {
