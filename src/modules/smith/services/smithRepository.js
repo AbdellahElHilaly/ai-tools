@@ -6,7 +6,7 @@ const AVATAR_BUCKET = "smith-character-avatars";
 async function requireUser() {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
-    const authError = new Error("Sign in first to use Smith.");
+    const authError = new Error("Sign in first to use Chat.");
     authError.code = "AUTH_REQUIRED";
     throw authError;
   }

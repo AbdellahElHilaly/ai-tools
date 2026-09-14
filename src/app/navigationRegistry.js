@@ -14,7 +14,7 @@ import {
 export const primaryNavigation = Object.freeze([
   { to: "/", label: "Home", icon: House, isActive: (path) => path === "/" },
   { to: "/quiz", label: "Quiz", icon: BrainCircuit, isActive: (path) => path === "/quiz" || path === "/library" },
-  { to: "/smith", label: "Smith", icon: Bot, isActive: (path) => path.startsWith("/smith") },
+  { to: "/smith", label: "Chat", icon: Bot, isActive: (path) => path.startsWith("/smith") },
   { to: "/config", label: "Settings", icon: Settings2, isActive: (path) => path === "/config" }
 ]);
 

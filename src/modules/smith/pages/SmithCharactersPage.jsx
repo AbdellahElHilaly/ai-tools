@@ -64,7 +64,7 @@ export function SmithCharactersPage() {
     <div className="page stack gap-5">
       <header className="smith-page-header">
         <div>
-          <span className="eyebrow">Smith</span>
+          <span className="eyebrow">Chat</span>
           <h1 className="page-title">Your characters</h1>
           <p className="page-copy">Create personalities with their own voice, instructions, image, and languages.</p>
         </div>

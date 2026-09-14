@@ -12,7 +12,7 @@
     link.href = "#/smith";
     link.dataset.smithNav = "true";
     link.className = "group flex min-h-11 items-center gap-3 border-l-2 px-4 text-sm font-semibold transition-colors border-transparent text-muted hover:text-ink";
-    link.innerHTML = botIcon() + "<span>Smith</span>";
+    link.innerHTML = botIcon() + "<span>Chat</span>";
     const settings = [...nav.querySelectorAll("a")].find((item) => item.textContent.trim() === "Settings");
     nav.insertBefore(link, settings || null);
   }
@@ -26,7 +26,7 @@
     link.href = "#/smith";
     link.dataset.smithLaunch = "true";
     link.className = "smith-launch-card";
-    link.innerHTML = '<span class="smith-launch-icon">✦</span><span><strong>Smith Chat</strong><small>Create AI personalities and private saved conversations.</small></span><b>→</b>';
+    link.innerHTML = '<span class="smith-launch-icon">✦</span><span><strong>Chat</strong><small>Create AI personalities and private saved conversations.</small></span><b>→</b>';
     grid.append(link);
   }
 

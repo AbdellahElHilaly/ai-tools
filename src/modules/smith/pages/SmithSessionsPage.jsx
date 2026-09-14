@@ -62,7 +62,7 @@ export function SmithSessionsPage() {
     <div className="page stack gap-5">
       <header className="smith-page-header">
         <div>
-          <span className="eyebrow">Smith</span>
+          <span className="eyebrow">Chat</span>
           <h1 className="page-title">Chat history</h1>
         </div>
         <Button onClick={() => setCreating((value) => !value)} disabled={!characters.data?.length}><Plus size={18} /> New session</Button>

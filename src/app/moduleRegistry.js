@@ -13,7 +13,7 @@ export const modules = Object.freeze([
   }),
   Object.freeze({
     id: "smith",
-    name: "Smith Chat",
+    name: "Chat",
     description: "Create distinct AI personalities, then talk with them across private saved sessions.",
     route: "/smith",
     icon: Bot,

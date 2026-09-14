@@ -58,7 +58,7 @@ function shell(content, active = "characters") {
     <div class="ss-shell">
       <header class="ss-topbar">
         <a href="#/" class="ss-brand"><span>✦</span> AI Tools</a>
-        <strong>Smith</strong>
+        <strong>Chat</strong>
       </header>
       <aside class="ss-rail">
         <a href="#/" class="ss-brand"><span>✦</span> AI Tools</a>
@@ -75,7 +75,7 @@ function shell(content, active = "characters") {
     </div>`;
 }
 function authRequired() {
-  shell(`<section class="ss-empty"><span class="ss-spark">✦</span><h1>Sign in to use Smith</h1><p>Your characters and conversations stay private to your account.</p><a class="ss-primary" href="#/config?section=account">Open account settings</a></section>`);
+  shell(`<section class="ss-empty"><span class="ss-spark">✦</span><h1>Sign in to use Chat</h1><p>Your characters and conversations stay private to your account.</p><a class="ss-primary" href="#/config?section=account">Open account settings</a></section>`);
 }
 
 async function ensureUser() {
@@ -110,7 +110,7 @@ async function renderCharacters() {
   shell(`
     <section class="ss-page">
       <header class="ss-page-head">
-        <div><small>SMITH</small><h1>Your characters</h1><p>Create personalities with their own voice, image, and languages.</p></div>
+        <div><small>CHAT</small><h1>Your characters</h1><p>Create personalities with their own voice, image, and languages.</p></div>
         <button class="ss-primary" data-action="new-character">＋ New character</button>
       </header>
       <div class="ss-status">Loading characters…</div>
@@ -232,7 +232,7 @@ async function renderSessions() {
   if (!user && !(await ensureUser())) return authRequired();
   shell(`
     <section class="ss-page">
-      <header class="ss-page-head"><div><small>SMITH</small><h1>Chat history</h1><p>Continue or manage your saved conversations.</p></div><a class="ss-primary" href="#/smith">＋ New session</a></header>
+      <header class="ss-page-head"><div><small>CHAT</small><h1>Chat history</h1><p>Continue or manage your saved conversations.</p></div><a class="ss-primary" href="#/smith">＋ New session</a></header>
       <div class="ss-status">Loading chats…</div><div class="ss-session-list"></div>
     </section>`, "chats");
   try {
@@ -406,7 +406,7 @@ function injectHomeCard() {
   link.href = "#/smith";
   link.dataset.smithLaunch = "true";
   link.className = "smith-launch-card";
-  link.innerHTML = '<span class="smith-launch-icon">✦</span><span><strong>Smith Chat</strong><small>Create AI personalities and private saved conversations.</small></span><b>→</b>';
+  link.innerHTML = '<span class="smith-launch-icon">✦</span><span><strong>Chat</strong><small>Create AI personalities and private saved conversations.</small></span><b>→</b>';
   grid.append(link);
 }
 async function route() {
