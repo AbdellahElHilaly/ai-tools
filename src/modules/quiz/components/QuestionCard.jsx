@@ -1,12 +1,13 @@
-import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Layers3, XCircle } from "lucide-react";
 import { Button } from "../../../shared/components/Button";
 import { Card } from "../../../shared/components/Card";
 import { MarkdownContent } from "../../../shared/components/MarkdownContent";
 
-export function QuestionCard({ session, question, answer, onAnswer, onNext }) {
+export function QuestionCard({ session, question, answer, onAnswer, onNext, onExit }) {
   const progress = Math.round(((session.currentIndex + 1) / session.questions.length) * 100);
   return (
     <div className="mx-auto max-w-2xl stack gap-4">
+      <div className="flex items-center justify-between gap-3"><button type="button" className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-muted hover:bg-black/5" onClick={onExit}><Layers3 size={17} /> المستويات</button><span className="eyebrow">الخطوة 3 من 3</span></div>
       <div className="flex items-center gap-3"><div className="h-2 flex-1 overflow-hidden rounded-full bg-black/5"><span className="block h-full bg-brand transition-all" style={{ width: `${progress}%` }} /></div><strong className="text-sm">{session.currentIndex + 1}/{session.questions.length}</strong></div>
       <Card className="stack gap-6">
         <div><span className="eyebrow">{question.topic}</span><h2 className="mb-0 mt-3 text-xl font-black leading-8 sm:text-2xl">{question.question}</h2></div>

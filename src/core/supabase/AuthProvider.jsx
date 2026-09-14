@@ -26,13 +26,9 @@ export function AuthProvider({ children }) {
   const ensureSession = useCallback(async () => {
     const { data } = await supabase.auth.getSession();
     if (data.session) return data.session;
-    const result = await supabase.auth.signInAnonymously();
-    if (result.error) {
-      const error = new Error("يلزم تسجيل الدخول قبل استعمال الذكاء الاصطناعي.");
-      error.code = "AUTH_REQUIRED";
-      throw error;
-    }
-    return result.data.session;
+    const error = new Error("سجّل الدخول أولاً باش تستعمل الذكاء الاصطناعي وتحفظ التقدم ديالك.");
+    error.code = "AUTH_REQUIRED";
+    throw error;
   }, []);
 
   const signIn = useCallback(async (email, password) => {

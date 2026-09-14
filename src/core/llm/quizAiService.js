@@ -1,16 +1,55 @@
 import { supabase } from "../supabase/client";
 import { questionBatchSchema, quizPlanSchema } from "./contracts";
 
+export class QuizAiError extends Error {
+  constructor(message, { code = "AI_ERROR", retryable = false } = {}) {
+    super(message);
+    this.name = "QuizAiError";
+    this.code = code;
+    this.retryable = retryable;
+  }
+}
+
+async function readFunctionError(error) {
+  const response = error?.context;
+  if (!response || typeof response.clone !== "function") return null;
+  try {
+    return await response.clone().json();
+  } catch {
+    return null;
+  }
+}
+
 async function invoke(body, schema) {
   const { data, error } = await supabase.functions.invoke("generate-quiz", { body });
-  if (error) throw new Error(error.message || "تعذر الاتصال بخدمة الذكاء الاصطناعي.");
-  if (data?.error) throw new Error(data.error);
-  return schema.parse(data?.data);
+  if (error) {
+    const payload = await readFunctionError(error);
+    const details = payload?.error;
+    throw new QuizAiError(
+      details?.message || error.message || "تعذر الاتصال بخدمة الذكاء الاصطناعي.",
+      { code: details?.code || "FUNCTION_ERROR", retryable: details?.retryable ?? true }
+    );
+  }
+  if (data?.error) {
+    const details = typeof data.error === "string" ? { message: data.error } : data.error;
+    throw new QuizAiError(details.message, { code: details.code, retryable: details.retryable });
+  }
+
+  const result = schema.safeParse(data?.data);
+  if (!result.success) {
+    throw new QuizAiError("رجع المحتوى بصيغة غير مكتملة. عاود المحاولة.", { code: "INVALID_RESPONSE", retryable: true });
+  }
+  return result.data;
 }
 
 export const quizAiService = {
   createPlan: ({ prompt, language = "ar" }) =>
     invoke({ operation: "plan", prompt, language }, quizPlanSchema),
-  createQuestions: ({ prompt, level, language = "ar", questionCount = 8 }) =>
-    invoke({ operation: "questions", prompt, level, language, questionCount }, questionBatchSchema)
+  createQuestions: async ({ prompt, level, language = "ar", questionCount = 8 }) => {
+    const batch = await invoke({ operation: "questions", prompt, level, language, questionCount }, questionBatchSchema);
+    if (batch.levelId !== level.id) {
+      throw new QuizAiError("الأسئلة ما تطابقوش المستوى المختار. عاود المحاولة.", { code: "LEVEL_MISMATCH", retryable: true });
+    }
+    return batch;
+  }
 };

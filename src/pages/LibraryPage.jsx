@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { quizRepository } from "../modules/quiz/services/quizRepository";
 import { Button } from "../shared/components/Button";
 import { Card } from "../shared/components/Card";
-import { EmptyState, LoadingState } from "../shared/components/Feedback";
+import { EmptyState, ErrorNotice, LoadingState } from "../shared/components/Feedback";
 
 export function LibraryPage() {
   const queryClient = useQueryClient();
@@ -22,14 +22,18 @@ export function LibraryPage() {
   return (
     <div className="page stack gap-6">
       <header><span className="eyebrow">Library</span><h1 className="page-title">مكتبتي</h1><p className="page-copy">كل ما حفظتيه، مرتب حسب آخر استعمال.</p></header>
+      {quizzes.isError ? <ErrorNotice>تعذر تحديث المكتبة من الحساب. كنوريك النسخة المحفوظة في الجهاز.</ErrorNotice> : null}
       <div className="grid gap-4 sm:grid-cols-2">
         {quizzes.data.map((quiz) => {
-          const session = quiz.currentSession;
+          const progressEntries = Object.values(quiz.progressByLevel || {});
+          const session = progressEntries.find((item) => item.status === "active") || quiz.currentSession;
           const total = session?.questions?.length || 0;
           const done = session?.answers?.length || 0;
+          const completedLevels = progressEntries.filter((item) => item.status === "completed").length;
           return (
             <Card key={quiz.id} className="stack">
               <div><span className="eyebrow">{session?.levelTitle || "جاهز للبداية"}</span><h2 className="mb-2 mt-2 text-xl font-black">{quiz.title}</h2><p className="muted m-0 line-clamp-2 leading-7">{quiz.description}</p></div>
+              <p className="m-0 text-sm font-bold text-brand">{completedLevels}/{quiz.plan.levels.length} مستويات مكتملة</p>
               {total ? <div><div className="mb-2 flex justify-between text-xs font-bold"><span>التقدم</span><span>{done}/{total}</span></div><div className="h-2 overflow-hidden rounded-full bg-black/5"><span className="block h-full rounded-full bg-brand" style={{ width: `${Math.round((done / total) * 100)}%` }} /></div></div> : null}
               <div className="cluster mt-auto">
                 <Link className="flex-1" to={`/quiz?id=${quiz.id}`}><Button className="w-full"><Play size={17} /> {done ? "كمّل" : "ابدأ"}</Button></Link>

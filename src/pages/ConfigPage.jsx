@@ -1,5 +1,6 @@
 import { CheckCircle2, LogOut, ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { publicConfig } from "../core/config/publicConfig";
 import { useAuth } from "../core/supabase/AuthProvider";
 import { Button } from "../shared/components/Button";
@@ -7,6 +8,8 @@ import { Card } from "../shared/components/Card";
 import { ErrorNotice } from "../shared/components/Feedback";
 
 export function ConfigPage() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { user, signIn, signUp, signOut } = useAuth();
   const [mode, setMode] = useState("signin");
   const [email, setEmail] = useState("");
@@ -14,15 +17,21 @@ export function ConfigPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const requestedNext = params.get("next");
+  const nextRoute = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : null;
 
   async function submit(event) {
     event.preventDefault();
     setBusy(true); setError(""); setMessage("");
     try {
-      if (mode === "signin") await signIn(email, password);
+      if (mode === "signin") {
+        await signIn(email, password);
+        if (nextRoute) navigate(nextRoute);
+      }
       else {
         const data = await signUp(email, password);
         setMessage(data.session ? "تم إنشاء الحساب." : "تحقق من بريدك لتأكيد الحساب، ثم سجّل الدخول.");
+        if (data.session && nextRoute) navigate(nextRoute);
       }
     } catch (nextError) {
       setError(nextError.message);
@@ -38,6 +47,7 @@ export function ConfigPage() {
           {user ? (
             <div className="stack">
               <div className="flex items-center gap-3 rounded-xl bg-[var(--color-brand-soft)] p-4 text-brand"><CheckCircle2 size={20} /><div><strong className="block">متصل</strong><span className="text-sm">{user.email || "جلسة ضيف آمنة"}</span></div></div>
+              {nextRoute ? <Link to={nextRoute}><Button className="w-full">رجع للـQuiz</Button></Link> : null}
               <Button variant="secondary" onClick={signOut}><LogOut size={18} /> تسجيل الخروج</Button>
             </div>
           ) : (

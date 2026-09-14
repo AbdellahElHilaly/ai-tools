@@ -3,7 +3,7 @@ import { initialQuizState, quizReducer, selectCurrentAnswer } from "./quizMachin
 
 const quiz = {
   plan: { levels: [{ id: "one", title: "الأول", summary: "", topics: ["A", "B"] }] },
-  currentSession: {}
+  progressByLevel: {}
 };
 const questions = [
   { id: "q1", correctIndex: 1, options: ["A", "B", "C", "D"] },
@@ -27,10 +27,29 @@ describe("quiz state machine", () => {
     expect(state.session).toMatchObject({ correctCount: 1, wrongCount: 1, status: "completed" });
   });
 
-  it("restores an active saved session", () => {
-    const saved = { ...quiz, currentSession: { levelId: "one", questions, answers: [], currentIndex: 0, status: "active" } };
-    const state = quizReducer(initialQuizState, { type: "LOAD_QUIZ", quiz: saved });
-    expect(state.phase).toBe("playing");
+  it("loads a saved quiz at the level picker and resumes on demand", () => {
+    const session = { levelId: "one", questions, answers: [], currentIndex: 0, status: "active" };
+    const saved = { ...quiz, progressByLevel: { one: session }, activeLevelIndex: 0 };
+    let state = quizReducer(initialQuizState, { type: "LOAD_QUIZ", quiz: saved });
+    expect(state.phase).toBe("levels");
     expect(state.selectedLevel.id).toBe("one");
+    state = quizReducer(state, { type: "OPEN_LEVEL", level: quiz.plan.levels[0] });
+    expect(state.phase).toBe("playing");
+    expect(state.session).toEqual(session);
+  });
+
+  it("keeps progress for each level when another level starts", () => {
+    const second = { id: "two", title: "الثاني", summary: "", topics: ["C", "D"] };
+    const multiLevelQuiz = { ...quiz, plan: { levels: [...quiz.plan.levels, second] } };
+    let state = quizReducer(initialQuizState, { type: "PLAN_READY", quiz: multiLevelQuiz });
+    state = quizReducer(state, { type: "SELECT_LEVEL", level: multiLevelQuiz.plan.levels[0] });
+    state = quizReducer(state, { type: "QUESTIONS_READY", questions });
+    state = quizReducer(state, { type: "ANSWER", selectedIndex: 1 });
+    state = quizReducer(state, { type: "BACK_TO_LEVELS" });
+    state = quizReducer(state, { type: "SELECT_LEVEL", level: second });
+    state = quizReducer(state, { type: "QUESTIONS_READY", questions: [{ ...questions[0], id: "q3" }] });
+
+    expect(state.quiz.progressByLevel.one.answers).toHaveLength(1);
+    expect(state.quiz.progressByLevel.two.questions[0].id).toBe("q3");
   });
 });

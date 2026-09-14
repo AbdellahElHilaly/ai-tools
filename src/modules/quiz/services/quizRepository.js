@@ -10,6 +10,7 @@ function toRow(quiz, userId) {
     description: quiz.description,
     plan: quiz.plan,
     current_session: quiz.currentSession ?? {},
+    progress_by_level: quiz.progressByLevel ?? {},
     active_level_index: quiz.activeLevelIndex ?? 0,
     status: quiz.status ?? "active",
     is_saved: quiz.isSaved ?? true,
@@ -18,13 +19,21 @@ function toRow(quiz, userId) {
 }
 
 function fromRow(row) {
+  const legacySession = row.current_session;
+  const progressByLevel = row.progress_by_level && Object.keys(row.progress_by_level).length
+    ? row.progress_by_level
+    : legacySession?.levelId
+      ? { [legacySession.levelId]: legacySession }
+      : {};
+
   return {
     id: row.id,
     title: row.title,
     prompt: row.prompt,
     description: row.description,
     plan: row.plan,
-    currentSession: row.current_session,
+    currentSession: legacySession,
+    progressByLevel,
     activeLevelIndex: row.active_level_index,
     status: row.status,
     isSaved: row.is_saved,
