@@ -30,7 +30,34 @@
       .boot-error button{margin-left:10px;border:0;background:transparent;color:inherit;font:inherit;font-weight:800;text-decoration:underline}
       @media(max-width:560px){.boot-links{grid-template-columns:1fr}.boot-main{padding-top:30px}}
     </style>
-    <script type="module" src="/ai-tools/bootstrap.js"></script>
+    <script type="module">
+      const BASE = "/ai-tools/";
+      const startedInChat = (location.hash.slice(1).split("?")[0] || "/").startsWith("/smith");
+      const start = startedInChat
+        ? import(`${BASE}smith-app.js`)
+        : Promise.all([
+            import(`${BASE}assets/index-D1sKwAOv.js`),
+            import(`${BASE}art-theme.js`),
+            import(`${BASE}smith-nav.js`)
+          ]);
+      const deadline = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("The application files took too long to arrive.")), 20000);
+      });
+
+      window.addEventListener("hashchange", () => {
+        const chatRoute = (location.hash.slice(1).split("?")[0] || "/").startsWith("/smith");
+        if (chatRoute !== startedInChat) location.reload();
+      });
+
+      Promise.race([start, deadline]).catch((error) => {
+        const notice = document.getElementById("boot-error");
+        if (!notice) return;
+        notice.hidden = false;
+        notice.className = "boot-error";
+        notice.innerHTML = `${error.message || "A file could not be loaded."}<button type="button">Try again</button>`;
+        notice.querySelector("button")?.addEventListener("click", () => location.reload());
+      });
+    </script>
   </head>
   <body>
     <div id="root">
