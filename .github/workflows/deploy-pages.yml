@@ -1,7 +1,8 @@
 name: Deploy GitHub Pages
 
 on:
-  # Temporarily manual while Pages is published from main/docs.
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   test-and-build:
