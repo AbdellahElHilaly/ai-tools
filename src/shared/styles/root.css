@@ -57,9 +57,9 @@ a { color: inherit; text-decoration: none; }
 }
 .theme-settings {
   --theme-primary: #3a86ff;
-  --theme-secondary: #66e0ff;
-  --theme-highlight: #bdb2ff;
-  --theme-glow: rgba(58, 134, 255, 0.16);
+  --theme-secondary: #bdb2ff;
+  --theme-highlight: #ffd6e0;
+  --theme-glow: rgba(58, 134, 255, 0.18);
 }
 .app-shell::before,
 .app-shell::after {
@@ -89,27 +89,51 @@ a { color: inherit; text-decoration: none; }
 .app-header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 40;
+  z-index: 60;
   display: flex;
   min-height: 3.5rem;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  background: rgba(255, 255, 255, 0.76);
-  box-shadow: 0 8px 35px rgba(76, 65, 140, 0.07);
+  background:
+    linear-gradient(
+      112deg,
+      color-mix(in srgb, var(--theme-primary) 15%, white),
+      color-mix(in srgb, var(--theme-secondary) 14%, white) 55%,
+      color-mix(in srgb, var(--theme-highlight) 12%, white)
+    );
+  box-shadow: 0 8px 35px var(--theme-glow);
   backdrop-filter: blur(22px) saturate(1.2);
 }
+.app-header__module {
+  color: color-mix(in srgb, var(--theme-primary) 78%, var(--color-ink));
+  font-size: 1rem;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+.app-header__menu { color: color-mix(in srgb, var(--theme-primary) 76%, var(--color-ink)); }
 .app-sidebar {
   position: fixed;
-  inset: 0 auto 0 0;
+  inset: 3.5rem auto 0 0;
   z-index: 50;
   display: flex;
-  width: 14rem;
+  width: min(17rem, 84vw);
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 14px 0 44px rgba(76, 65, 140, 0.07);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 14px 0 44px rgba(76, 65, 140, 0.1);
   backdrop-filter: blur(24px) saturate(1.2);
+  transform: translateX(-105%);
   transition: transform 220ms ease;
+}
+.app-sidebar--open { transform: translateX(0); }
+.drawer-scrim {
+  position: fixed;
+  inset: 3.5rem 0 0;
+  z-index: 45;
+  padding: 0;
+  background: rgba(32, 36, 58, 0.16);
+  border: 0;
+  backdrop-filter: blur(3px);
 }
 .app-sidebar__brand {
   display: flex;
@@ -298,8 +322,8 @@ main [role="group"] > button:hover { transform: translateY(-1px); box-shadow: 0 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 @media (min-width: 768px) {
-  .app-content { margin-left: 14rem; padding-top: 0; }
-  .context-nav { left: calc(14rem + ((100vw - 14rem - min(28rem, 100vw - 16rem)) / 2)); right: auto; width: min(28rem, calc(100vw - 16rem)); }
+  .app-content { margin-left: 0; padding-top: 3.5rem; }
+  .context-nav { right: auto; left: 50%; width: min(28rem, calc(100vw - 2rem)); transform: translateX(-50%); }
 }
 
 @media (max-width: 520px) {

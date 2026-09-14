@@ -54,11 +54,14 @@ function getSessionId() {
   return match?.[1] || "";
 }
 function shell(content, active = "characters") {
+  app.classList.remove("sidebar-open");
   app.innerHTML = `
     <div class="ss-shell">
       <header class="ss-topbar">
-        <a href="#/" class="ss-brand"><span>✦</span> AI Tools</a>
         <strong>Chat</strong>
+        <button class="ss-nav-toggle" type="button" data-action="toggle-sidebar" aria-label="Open sidebar" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </header>
       <aside class="ss-rail">
         <a href="#/" class="ss-brand"><span>✦</span> AI Tools</a>
@@ -67,6 +70,7 @@ function shell(content, active = "characters") {
           <a href="#/smith/chats" class="${active === "chats" ? "active" : ""}">Chats</a>
         </nav>
       </aside>
+      <button class="ss-rail-scrim" type="button" data-action="toggle-sidebar" aria-label="Close sidebar"></button>
       <main class="ss-main">${content}</main>
       <nav class="ss-tabs">
         <a href="#/smith" class="${active === "characters" ? "active" : ""}"><span>♙</span>Characters</a>
@@ -326,6 +330,11 @@ async function handleClick(event) {
   if (!target || busy) return;
   const action = target.dataset.action;
   const id = target.dataset.id;
+  if (action === "toggle-sidebar") {
+    const open = app.classList.toggle("sidebar-open");
+    app.querySelector(".ss-nav-toggle")?.setAttribute("aria-expanded", String(open));
+    return;
+  }
   try {
     if (action === "new-character") characterForm();
     if (action === "close-modal") target.closest(".ss-modal")?.remove();

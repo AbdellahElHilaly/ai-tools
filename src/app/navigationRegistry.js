@@ -37,6 +37,13 @@ export const contextualNavigation = Object.freeze({
   ]
 });
 
+export const navigationTitles = Object.freeze({
+  home: "Home",
+  quiz: "Quiz",
+  smith: "Chat",
+  settings: "Settings"
+});
+
 export function resolveNavigationSection(pathname) {
   if (pathname === "/config") return "settings";
   if (pathname === "/quiz" || pathname === "/library") return "quiz";

@@ -31,16 +31,30 @@ body.smith-standalone-open #root { display: none !important; }
 .ss-topbar {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 4;
+  z-index: 14;
   display: flex;
   height: 3.5rem;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  background: rgba(255,255,255,.73);
-  box-shadow: 0 8px 34px rgba(55,95,110,.07);
+  background: linear-gradient(112deg, rgba(21,154,154,.18), rgba(102,224,255,.17) 55%, rgba(217,167,255,.16));
+  box-shadow: 0 8px 34px rgba(21,154,154,.13);
   backdrop-filter: blur(22px);
 }
+.ss-topbar > strong { color: #087b82; font-size: 1rem; font-weight: 850; letter-spacing: -.025em; }
+.ss-nav-toggle {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-content: center;
+  gap: .24rem;
+  padding: 0;
+  color: #087b82;
+  background: rgba(255,255,255,.28);
+  border: 0;
+  border-radius: 14px;
+}
+.ss-nav-toggle span { display: block; width: 1.15rem; height: 2px; background: currentColor; border-radius: 99px; }
 .ss-brand { display: inline-flex; align-items: center; gap: .65rem; font-weight: 850; }
 .ss-brand span {
   display: grid;
@@ -54,15 +68,29 @@ body.smith-standalone-open #root { display: none !important; }
 }
 .ss-rail {
   position: fixed;
-  inset: 0 auto 0 0;
-  z-index: 3;
-  display: none;
-  width: 14rem;
+  inset: 3.5rem auto 0 0;
+  z-index: 13;
+  display: block;
+  width: min(17rem, 84vw);
   padding: 1rem;
-  background: rgba(255,255,255,.66);
-  box-shadow: 14px 0 44px rgba(55,95,110,.07);
+  background: rgba(255,255,255,.84);
+  box-shadow: 14px 0 44px rgba(55,95,110,.1);
   backdrop-filter: blur(24px);
+  transform: translateX(-105%);
+  transition: transform 220ms ease;
 }
+#smith-standalone.sidebar-open .ss-rail { transform: translateX(0); }
+.ss-rail-scrim {
+  position: fixed;
+  inset: 3.5rem 0 0;
+  z-index: 12;
+  display: none;
+  padding: 0;
+  background: rgba(32,36,58,.16);
+  border: 0;
+  backdrop-filter: blur(3px);
+}
+#smith-standalone.sidebar-open .ss-rail-scrim { display: block; }
 .ss-rail nav { display: grid; gap: .3rem; margin-top: 2rem; }
 .ss-rail nav a {
   position: relative;
@@ -486,11 +514,9 @@ body.smith-standalone-open #root { display: none !important; }
 @keyframes ss-type { from { transform: translateY(0); opacity: .4; } to { transform: translateY(-4px); opacity: 1; } }
 
 @media (min-width: 768px) {
-  .ss-topbar { display: none; }
-  .ss-rail { display: block; }
-  .ss-main { padding-top: 0; margin-left: 14rem; }
-  .ss-chat { height: 100vh; }
-  .ss-tabs { left: calc(14rem + ((100vw - 14rem - min(28rem, 100vw - 16rem)) / 2)); right: auto; width: min(28rem, calc(100vw - 16rem)); }
+  .ss-main { padding-top: 3.5rem; margin-left: 0; }
+  .ss-chat { height: calc(100vh - 3.5rem); }
+  .ss-tabs { right: auto; left: 50%; width: min(28rem, calc(100vw - 2rem)); transform: translateX(-50%); }
 }
 @media (max-width: 620px) {
   .ss-page-head { align-items: flex-start; }

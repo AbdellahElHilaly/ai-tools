@@ -14,10 +14,10 @@ body[data-module-theme="quiz"] {
   --art-glow: rgba(103, 70, 232, 0.2);
 }
 body[data-module-theme="settings"] {
-  --art-primary: #2878ed;
-  --art-secondary: #66e0ff;
-  --art-highlight: #bdb2ff;
-  --art-glow: rgba(40, 120, 237, 0.17);
+  --art-primary: #3a86ff;
+  --art-secondary: #bdb2ff;
+  --art-highlight: #ffd6e0;
+  --art-glow: rgba(58, 134, 255, 0.17);
 }
 
 html, body { background: #fbfbff !important; }
@@ -227,4 +227,45 @@ main label.border {
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+
+
+/* Unified module navbar */
+#root > div > header.unified-navbar {
+  z-index: 70 !important;
+  display: flex !important;
+  min-height: 3.5rem !important;
+  background:
+    linear-gradient(
+      112deg,
+      color-mix(in srgb, var(--art-primary) 15%, white),
+      color-mix(in srgb, var(--art-secondary) 14%, white) 55%,
+      color-mix(in srgb, var(--art-highlight) 12%, white)
+    ) !important;
+  box-shadow: 0 8px 35px var(--art-glow) !important;
+}
+#root > div > header.unified-navbar .unified-module-title {
+  color: color-mix(in srgb, var(--art-primary) 78%, var(--art-ink)) !important;
+  font-size: 1rem !important;
+  font-weight: 850 !important;
+  letter-spacing: -.025em;
+}
+#root > div > header.unified-navbar .unified-module-title > * { display: none !important; }
+#root > div > header.unified-navbar button {
+  color: color-mix(in srgb, var(--art-primary) 76%, var(--art-ink)) !important;
+}
+#root > div > aside {
+  top: 3.5rem !important;
+  bottom: 0 !important;
+  height: auto !important;
+}
+#root > div > main { padding-top: 3.5rem !important; }
+body.published-sidebar-hidden #root > div > aside { transform: translateX(-105%) !important; }
+body.published-sidebar-hidden #root > div > main { margin-left: 0 !important; }
+@media (min-width: 768px) {
+  body.published-sidebar-hidden #root > div > nav {
+    right: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
 }
