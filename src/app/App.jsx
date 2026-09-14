@@ -14,7 +14,20 @@ const SmithChatPage = lazy(() => import("../modules/smith/pages/SmithChatPage").
 const ConfigPage = lazy(() => import("../pages/ConfigPage").then((module) => ({ default: module.ConfigPage })));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage").then((module) => ({ default: module.NotFoundPage })));
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } });
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      retry: (failureCount) => navigator.onLine !== false && failureCount < 1,
+      refetchOnWindowFocus: false,
+      networkMode: "offlineFirst"
+    },
+    mutations: {
+      retry: 0,
+      networkMode: "online"
+    }
+  }
+});
 
 export function App() {
   return (

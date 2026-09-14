@@ -25,7 +25,18 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: "index.html",
-        globPatterns: ["**/*.{js,css,html,svg,png,woff2}"]
+        globPatterns: [
+          "**/*.{html,css,svg,png,woff2}",
+          "assets/index-*.js",
+          "assets/HomePage-*.js"
+        ],
+        runtimeCaching: [
+          {
+            urlPattern: ({ request, url }) => url.origin === self.location.origin && request.destination === "script",
+            handler: "StaleWhileRevalidate",
+            options: { cacheName: "ai-tools-route-modules", expiration: { maxEntries: 20, maxAgeSeconds: 604800 } }
+          }
+        ]
       }
     })
   ],

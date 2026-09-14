@@ -1,3 +1,4 @@
+import { withTimeout } from "../../../core/network/asyncPolicy";
 import { supabase } from "../../../core/supabase/client";
 
 export class SmithAiError extends Error {
@@ -21,7 +22,11 @@ async function readFunctionError(error) {
 
 export const smithAiService = {
   async reply(sessionId) {
-    const { data, error } = await supabase.functions.invoke("smith-chat", { body: { sessionId } });
+    const { data, error } = await withTimeout(
+      supabase.functions.invoke("smith-chat", { body: { sessionId } }),
+      65000,
+      "The character took too long to answer. Please try again."
+    );
     if (error) {
       const payload = await readFunctionError(error);
       const details = payload?.error;

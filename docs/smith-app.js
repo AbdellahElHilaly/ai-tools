@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
+import { createClient } from "./supabase-lite.js";
 
 const supabase = createClient(
   "https://lnvvtndwkyclayehyjfb.supabase.co",
@@ -343,7 +343,11 @@ async function sendMessage(form) {
   });
   if (error) { busy = false; throw error; }
   await refreshMessages();
-  const result = await supabase.functions.invoke("smith-chat", { body: { sessionId: activeSession.id } });
+  const result = await withTimeout(
+    supabase.functions.invoke("smith-chat", { body: { sessionId: activeSession.id } }),
+    65000,
+    "The character took too long to answer. Please try again."
+  );
   busy = false;
   if (result.error) {
     let message = result.error.message;
