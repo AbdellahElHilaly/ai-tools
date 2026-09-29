@@ -1,58 +1,19 @@
-name: Build Meteor Dodge APK
+name: Runner Diagnostic
 
 on:
   push:
     branches:
       - sandbox-flutter-game
     paths:
-      - "flutter_game/**"
       - ".github/workflows/build-flutter-game.yml"
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
-  build:
+  diagnostic:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.47.5"
-          channel: stable
-          cache: true
-
-      - name: Create Android project
+      - name: Runner info
         run: |
-          rm -rf /tmp/meteor_dodge
-          flutter create --platforms=android --org com.sandbox --project-name meteor_dodge /tmp/meteor_dodge
-          cp flutter_game/lib/main.dart /tmp/meteor_dodge/lib/main.dart
-          cp flutter_game/pubspec.yaml /tmp/meteor_dodge/pubspec.yaml
-
-      - name: Analyze
-        working-directory: /tmp/meteor_dodge
-        run: |
-          flutter pub get
-          flutter analyze
-
-      - name: Build release APK
-        working-directory: /tmp/meteor_dodge
-        run: flutter build apk --release
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: meteor-dodge-apk
-          path: /tmp/meteor_dodge/build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-          retention-days: 7
+          uname -a
+          java -version
+          df -h
